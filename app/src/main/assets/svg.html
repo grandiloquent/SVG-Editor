@@ -100,6 +100,26 @@ ${body["content"]}`;
         const options = { indent_size: 2 }
         textarea.value = html_beautify(textarea.value, options);
     }
+    function getWord(textarea) {
+        let start = textarea.selectionStart;
+        let end = textarea.selectionEnd;
+        while (start - 1 > -1 && /[a-zA-Z0-9_\u3400-\u9FBF]/.test(textarea.value[start - 1])) {
+            start--;
+        }
+        while (end < textarea.value.length && /[a-zA-Z0-9_\u3400-\u9FBF]/.test(textarea.value[end])) {
+            end++;
+        }
+        return [start, end];
+    }
+    async function snippet(textarea) {
+        const points = getWord(textarea);
+        let word = textarea.value.substring(points[0], points[1]);
+
+        const res = await fetch(`${baseUri}/snippet?k=${word}&t=0`)
+        if (res.status === 200) {
+            textarea.setRangeText(await res.text(), points[0], points[1]);
+        }
+    }
     async function initializeToolbars() {
         let topIndexs;
         let bottomIndexs;
@@ -115,8 +135,8 @@ ${body["content"]}`;
                 bottomIndexs = results[1];
             }
         } catch (error) {
-            topIndexs = [1,4]
-            bottomIndexs = [2, 3]
+            topIndexs = [1, 4]
+            bottomIndexs = [2, 3, 5]
         }
         insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
         insertItem(bottomIndexs, '.bar-renderer.bottom', 'bar-item-tab');
@@ -127,7 +147,7 @@ ${body["content"]}`;
             1,
             "preview",
             "预览",
-             () => {
+            () => {
                 window.open(`${baseUri}/svgviewer.html?id=${id}`, '_blank');
             }
         ], [
@@ -144,12 +164,20 @@ ${body["content"]}`;
             () => {
                 formatCode();
             }
-        ],[
+        ], [
             4,
             "help",
             "帮助",
             () => {
                 window.open(`${baseUri}/snippet.html`, '_blank');
+            }
+        ],
+        [
+            5,
+            "text_snippet",
+            "代码",
+            () => {
+                snippet(textarea);
             }
         ],
     ];
