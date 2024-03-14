@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Build.VERSION;
@@ -14,12 +15,21 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.Settings;
+import android.util.Log;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
     public static final String POST_NOTIFICATIONS = "android.permission.POST_NOTIFICATIONS";
+
+    static {
+/*
+加载编译Rust代码后得到共享库。它完整的名称为librust.so
+  */
+        System.loadLibrary("nativelib");
+    }
 
     public static void aroundFileUriExposedException() {
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
@@ -71,7 +81,7 @@ public class MainActivity extends Activity {
             // 但不包括 Android/data 目录下程序的私有数据目录
             if (!Environment.isExternalStorageManager()) {
                 try {
-                    Uri uri = Uri.parse("package:psycho.euphoria.app");
+                    Uri uri = Uri.parse("package:" + context.getPackageName());
                     Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, uri);
                     context.startActivity(intent);
                 } catch (Exception ex) {
@@ -83,23 +93,23 @@ public class MainActivity extends Activity {
         }
     }
 
+    public static native String startServer(Context context, AssetManager assetManager, String host, int port);
+
+
     private void initialize() {
         requestNotificationPermission(this);
-        if (VERSION.SDK_INT >= VERSION_CODES.M) {
-            if (!Settings.canDrawOverlays(this)) {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
-                startActivityForResult(intent, 0);
-            }
-        }
         List<String> permissions = new ArrayList<>();
         if (checkSelfPermission(permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             permissions.add(permission.CAMERA);
         }
-        if (permissions.size() > 0) {
+        if (!permissions.isEmpty()) {
             requestPermissions(permissions.toArray(new String[0]), 0);
         }
         aroundFileUriExposedException();
         requestStorageManagerPermission(this);
+        File dir = new File(Environment.getExternalStorageDirectory(), ".editor");
+        if (!dir.isDirectory())
+            dir.mkdir();
     }
 
     @Override
