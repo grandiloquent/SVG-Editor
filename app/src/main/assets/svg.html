@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG 预览</title>
+</head>
+
+<body>
+
+</body>
+<script>
+    let baseUri = window.location.host === "127.0.0.1:5500" ? "http://192.168.8.55:8090" : "..";
+    const searchParams = new URL(window.location).searchParams;
+    const id = searchParams.get('id');
+    async function loadData() {
+        const res = await fetch(`${baseUri}/svg?id=${id}`);
+        const body = await res.json();;
+        document.title = body["title"];
+        document.body.innerHTML = body["content"];
+    }
+    loadData();
+</script>
+
+</html>

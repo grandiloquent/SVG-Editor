@@ -61,27 +61,7 @@
             bottomBar.appendChild(div);
         })
     }
-    async function initializeToolbars() {
-        let topIndexs;
-        let bottomIndexs;
 
-        try {
-            const response = await fetch(`${baseUri}/ts`);
-            if (response.status > 399 || response.status < 200) {
-                throw new Error(`${response.status}: ${response.statusText}`)
-            }
-            const results = JSON.parse(await response.text());
-            if (results) {
-                topIndexs = results[0];
-                bottomIndexs = results[1];
-            }
-        } catch (error) {
-            topIndexs = [1]
-            bottomIndexs = [2]
-        }
-        insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
-        insertItem(bottomIndexs, '.bar-renderer.bottom', 'bar-item-tab');
-    }
 
     async function saveData() {
         let s = textarea.value.trim();
@@ -107,6 +87,40 @@
         }
     }
 
+    async function loadData() {
+        const res = await fetch(`${baseUri}/svg?id=${id}`);
+        const body = await res.json();;
+        document.title = body["title"];
+        textarea.value = `${body["title"]}
+    
+${body["content"]}`;
+    }
+
+    function formatCode() {
+        const options = { indent_size: 2 }
+        textarea.value = html_beautify(textarea.value, options);
+    }
+    async function initializeToolbars() {
+        let topIndexs;
+        let bottomIndexs;
+
+        try {
+            const response = await fetch(`${baseUri}/ts`);
+            if (response.status > 399 || response.status < 200) {
+                throw new Error(`${response.status}: ${response.statusText}`)
+            }
+            const results = JSON.parse(await response.text());
+            if (results) {
+                topIndexs = results[0];
+                bottomIndexs = results[1];
+            }
+        } catch (error) {
+            topIndexs = [1]
+            bottomIndexs = [2, 3]
+        }
+        insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
+        insertItem(bottomIndexs, '.bar-renderer.bottom', 'bar-item-tab');
+    }
     ///////////////////////////////////////////////////
     const items = [
         [
@@ -114,6 +128,7 @@
             "preview",
             "预览",
             async () => {
+                window.open(`${baseUri}/svg.html?id=${id}`, '_blank');
             }
         ], [
             2,
@@ -122,10 +137,17 @@
             async () => {
                 saveData();
             }
+        ], [
+            3,
+            "code",
+            "格式",
+            () => {
+                formatCode();
+            }
         ],
     ];
     initializeToolbars()
-
+    loadData();
 </script>
 
 </html>
