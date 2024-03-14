@@ -15,15 +15,14 @@ import android.util.Log;
 public class AppService extends Service {
 
     public static final String ACTION_DISMISS = "psycho.euphoria.app.ServerService.ACTION_DISMISS";
+    public static final String ACTION_APP = "psycho.euphoria.app.ServerService.ACTION_APP";
     public static final String KP_NOTIFICATION_CHANNEL_ID = "notes_notification_channel";
 
     public static void createNotification(AppService context) {
-        PendingIntent piDismiss = getPendingIntentDismiss(context);
-        Intent intent = new Intent(context, MainActivity.class);
         Notification notification = new Notification.Builder(context, KP_NOTIFICATION_CHANNEL_ID).setContentTitle("笔记")
                 .setSmallIcon(android.R.drawable.stat_sys_download)
-                .addAction(new Notification.Action.Builder(null, "程序", PendingIntent.getActivity(context, 0, intent,  PendingIntent.FLAG_UPDATE_CURRENT)).build())
-                .addAction(getAction(piDismiss))
+                .addAction(getAction("程序", getPendingIntent(context, ACTION_APP)))
+                .addAction(getAction("关闭", getPendingIntent(context, ACTION_DISMISS)))
                 .build();
         context.startForeground(1, notification);
     }
@@ -33,13 +32,13 @@ public class AppService extends Service {
         ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(notificationChannel);
     }
 
-    public static Notification.Action getAction(PendingIntent piDismiss) {
-        return new Notification.Action.Builder(null, "关闭", piDismiss).build();
+    public static Notification.Action getAction(String name, PendingIntent piDismiss) {
+        return new Notification.Action.Builder(null, name, piDismiss).build();
     }
 
-    public static PendingIntent getPendingIntentDismiss(Context context) {
+    public static PendingIntent getPendingIntent(Context context, String action) {
         Intent dismissIntent = new Intent(context, AppService.class);
-        dismissIntent.setAction(ACTION_DISMISS);
+        dismissIntent.setAction(action);
         return PendingIntent.getService(context, 0, dismissIntent, PendingIntent.FLAG_IMMUTABLE);
     }
 
@@ -68,7 +67,12 @@ public class AppService extends Service {
                 stopSelf();
                 Process.killProcess(Process.myPid());
                 return START_NOT_STICKY;
+            } else if (intent.getAction().equals(ACTION_APP)) {
+                Intent app = new Intent(this, MainActivity.class);
+                app.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(app);
             }
+
         }
         return super.onStartCommand(intent, flags, startId);
     }
