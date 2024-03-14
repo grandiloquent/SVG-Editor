@@ -118,4 +118,11 @@ public class MainActivity extends Activity {
         initialize();
     }
 
+    public static String getAddress(Context context) {
+        String host = Shared.getDeviceIP(context);
+        return String.format("http://%s:%d", host, DEFAULT_PORT);
+    }
+
+    public static final int DEFAULT_PORT = 8090;
+
 }
