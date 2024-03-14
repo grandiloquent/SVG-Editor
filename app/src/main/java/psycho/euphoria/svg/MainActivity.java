@@ -4,6 +4,7 @@ import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.NotificationManager;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -17,6 +18,8 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -81,6 +84,27 @@ public class MainActivity extends Activity {
         context.startService(intent);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, 1, 0, "刷新");
+        menu.add(0, 2, 0, "首页");
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case 1:
+                mWebView.reload();
+                break;
+            case 2:
+                mWebView.loadUrl(getAddress(this));
+                break;
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
     public static void requestNotificationPermission(Activity activity) {
         if (Build.VERSION.SDK_INT >= 33) {
             if (activity.checkSelfPermission(POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) {
@@ -124,7 +148,7 @@ public class MainActivity extends Activity {
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-       //settings.setUserAgentString(USER_AGENT);
+        //settings.setUserAgentString(USER_AGENT);
         settings.setSupportZoom(false);
     }
 
