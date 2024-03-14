@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>列表</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+</head>
+
+<body>
+    <div class="container"></div>
+    <div class="bar-renderer">
+        <a class="bar-item-tab" href="/svg.html">
+            <span class="material-symbols-outlined">
+                add
+            </span>
+            <div class="pivot-bar-item-title">
+                新建
+            </div>
+        </a>
+    </div>
+</body>
+<script>
+    let baseUri = window.location.host === "127.0.0.1:5500" ? "http://192.168.8.55:8090" : "";
+    const searchParams = new URL(window.location).searchParams;
+    async function load() {
+        const path = searchParams.get("path");
+        const res = await fetch(`${baseUri}/svgs`);
+        return res.json();
+    }
+    async function render() {
+        const data = await load();
+        const container = document.querySelector('.container');
+        data.forEach(x => {
+            const div = document.createElement('a');
+            div.href = "/svg.html?id=" + x.id
+            div.textContent = x.title;
+            container.appendChild(div);
+        });
+    }
+    async function initialize() {
+        await render();
+    }
+    initialize();
+</script>
+
+</html>
