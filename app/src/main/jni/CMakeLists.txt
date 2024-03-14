@@ -7,7 +7,7 @@ add_library(nativelib SHARED
         logging.cpp)
 
 add_library(httplib SHARED httplib.cc)
-target_compile_definitions(httplib PUBLIC CPPHTTPLIB_OPENSSL_SUPPORT)
+#target_compile_definitions(httplib PUBLIC CPPHTTPLIB_OPENSSL_SUPPORT)
 
 add_library(sqlite3 SHARED sqlite3.c)
 add_subdirectory(nlohmann_json)
