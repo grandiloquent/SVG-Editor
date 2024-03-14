@@ -1,6 +1,7 @@
 package psycho.euphoria.svg;
 
 import android.Manifest.permission;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -16,12 +17,15 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.Settings;
 import android.util.Log;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
+    public static final int DEFAULT_PORT = 8090;
     public static final String POST_NOTIFICATIONS = "android.permission.POST_NOTIFICATIONS";
 
     static {
@@ -30,6 +34,8 @@ public class MainActivity extends Activity {
   */
         System.loadLibrary("nativelib");
     }
+
+    private WebView mWebView;
 
     public static void aroundFileUriExposedException() {
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
@@ -54,6 +60,25 @@ public class MainActivity extends Activity {
             intent.setData(uri);
             context.startActivity(intent);
         }
+    }
+
+    public static String getAddress(Context context) {
+        String host = Shared.getDeviceIP(context);
+        return String.format("http://%s:%d", host, DEFAULT_PORT);
+    }
+
+    public static WebView initializeWebView(MainActivity context) {
+        WebView webView = new WebView(context);
+        webView.addJavascriptInterface(new WebAppInterface(context), "NativeAndroid");
+        webView.setWebViewClient(new CustomWebViewClient(context));
+        webView.setWebChromeClient(new CustomWebChromeClient(context));
+        context.setContentView(webView);
+        return webView;
+    }
+
+    public static void launchServer(MainActivity context) {
+        Intent intent = new Intent(context, AppService.class);
+        context.startService(intent);
     }
 
     public static void requestNotificationPermission(Activity activity) {
@@ -93,8 +118,17 @@ public class MainActivity extends Activity {
         }
     }
 
-    public static native String startServer(Context context, AssetManager assetManager, String host, int port);
+    @SuppressLint("SetJavaScriptEnabled")
+    public static void setWebView(WebView webView) {
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        settings.setUserAgentString(USER_AGENT);
+        settings.setSupportZoom(false);
+    }
 
+    public static native String startServer(Context context, AssetManager assetManager, String host, int port);
 
     private void initialize() {
         requestNotificationPermission(this);
@@ -110,6 +144,9 @@ public class MainActivity extends Activity {
         File dir = new File(Environment.getExternalStorageDirectory(), ".editor");
         if (!dir.isDirectory())
             dir.mkdir();
+        launchServer(this);
+        mWebView = initializeWebView(this);
+        setWebView(mWebView);
     }
 
     @Override
@@ -117,12 +154,5 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         initialize();
     }
-
-    public static String getAddress(Context context) {
-        String host = Shared.getDeviceIP(context);
-        return String.format("http://%s:%d", host, DEFAULT_PORT);
-    }
-
-    public static final int DEFAULT_PORT = 8090;
 
 }

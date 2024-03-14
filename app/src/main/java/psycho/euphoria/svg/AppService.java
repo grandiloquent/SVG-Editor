@@ -21,6 +21,7 @@ public class AppService extends Service {
         Intent intent = new Intent(context, MainActivity.class);
         Notification notification = new Notification.Builder(context, KP_NOTIFICATION_CHANNEL_ID).setContentTitle("笔记")
                 .setSmallIcon(android.R.drawable.stat_sys_download)
+                .addAction(new Notification.Action.Builder(null, "程序", PendingIntent.getActivity(context, 0, intent,  PendingIntent.FLAG_UPDATE_CURRENT)).build())
                 .addAction(getAction(piDismiss))
                 .build();
         context.startForeground(1, notification);
