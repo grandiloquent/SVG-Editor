@@ -2084,7 +2084,13 @@ std::string encode_query_param(const std::string &value);
 
 std::string decode_url(const std::string &s, bool convert_plus_to_space);
 
-void read_file(const std::string &path, std::string &out);
+    std::string
+    find_content_type(const std::string &path,
+                      const std::map<std::string, std::string> &user_data,
+                      const std::string &default_content_type);
+
+
+    void read_file(const std::string &path, std::string &out);
 
 std::string trim_copy(const std::string &s);
 

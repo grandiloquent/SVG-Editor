@@ -1,7 +1,7 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "shared.h";
+#include "shared.h"
 #include "httplib.h"
 #include <nlohmann/json.hpp>
 #include <regex>

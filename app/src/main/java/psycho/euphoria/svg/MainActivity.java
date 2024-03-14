@@ -124,7 +124,7 @@ public class MainActivity extends Activity {
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-        settings.setUserAgentString(USER_AGENT);
+       //settings.setUserAgentString(USER_AGENT);
         settings.setSupportZoom(false);
     }
 
