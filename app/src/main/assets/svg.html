@@ -111,6 +111,73 @@ ${body["content"]}`;
         }
         return [start, end];
     }
+
+    function getLine(textarea) {
+        let start = textarea.selectionStart;
+        let end = textarea.selectionEnd;
+        if (textarea.value[start] === '\n' && start - 1 > 0) {
+            start--;
+        }
+        if (textarea.value[end] === '\n' && end - 1 > 0) {
+            end--;
+        }
+        while (start - 1 > -1 && textarea.value[start - 1] !== '\n') {
+            start--;
+        }
+        while (end + 1 < textarea.value.length && textarea.value[end + 1] !== '\n') {
+            end++;
+        }
+        return [start, end + 1];
+    }
+
+
+    function findExtendPosition(editor) {
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        let string = editor.value;
+        let offsetStart = start;
+        while (offsetStart > 0) {
+            if (!/\s/.test(string[offsetStart - 1]))
+                offsetStart--;
+            else {
+                let os = offsetStart;
+                while (os > 0 && /\s/.test(string[os - 1])) {
+                    os--;
+                }
+                if ([...string.substring(offsetStart, os).matchAll(/\n/g)].length > 1) {
+                    break;
+                }
+                offsetStart = os;
+            }
+        }
+        let offsetEnd = end;
+        while (offsetEnd < string.length) {
+            if (!/\s/.test(string[offsetEnd + 1])) {
+
+                offsetEnd++;
+            } else {
+
+                let oe = offsetEnd;
+                while (oe < string.length && /\s/.test(string[oe + 1])) {
+                    oe++;
+                }
+                if ([...string.substring(offsetEnd, oe + 1).matchAll(/\n/g)].length > 1) {
+                    offsetEnd++;
+
+                    break;
+                }
+                offsetEnd = oe + 1;
+
+            }
+        }
+        while (offsetStart > 0 && string[offsetStart - 1] !== '\n') {
+            offsetStart--;
+        }
+        // if (/\s/.test(string[offsetEnd])) {
+        //     offsetEnd--;
+        // }
+        return [offsetStart, offsetEnd];
+    }
     async function snippet(textarea) {
         const points = getWord(textarea);
         let word = textarea.value.substring(points[0], points[1]);
@@ -119,6 +186,17 @@ ${body["content"]}`;
         if (res.status === 200) {
             textarea.setRangeText(await res.text(), points[0], points[1]);
         }
+    }
+    function commentLine(textarea) {
+        const points = findExtendPosition(textarea);
+        let s = textarea.value.substring(points[0], points[1]).trim();
+        if (s.startsWith("<!--") && s.endsWith("-->")) {
+            s = s.substring("<!--".length);
+            s = s.substring(0,s.length - "-->".length);
+        } else {
+            s = `<!--${s}-->`;
+        }
+        textarea.setRangeText(s, points[0], points[1]);
     }
     async function initializeToolbars() {
         let topIndexs;
@@ -135,7 +213,7 @@ ${body["content"]}`;
                 bottomIndexs = results[1];
             }
         } catch (error) {
-            topIndexs = [1, 4]
+            topIndexs = [1, 6, 7, 4]
             bottomIndexs = [2, 3, 5]
         }
         insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
@@ -178,6 +256,22 @@ ${body["content"]}`;
             "代码",
             () => {
                 snippet(textarea);
+            }
+        ], [
+            6,
+            "text_snippet",
+            "计算",
+            () => {
+                let points = getLine(textarea);
+                let line = textarea.value.substring(points[0], points[1]);
+                textarea.setRangeText(eval(line), points[0], points[1])
+            }
+        ], [
+            7,
+            "comment",
+            "注释",
+            () => {
+                commentLine(textarea)
             }
         ],
     ];
