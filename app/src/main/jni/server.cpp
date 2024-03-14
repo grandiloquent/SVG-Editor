@@ -18,9 +18,10 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
     static const char table1[]
             = R"(CREATE TABLE IF NOT EXISTS "snippet" (
 	"id"	INTEGER,
-	"keyword" TEXT NOT NULL UNIQUE,
+	"keyword" TEXT,
 	"content"	TEXT,
 	"views" INTEGER,
+	"type" TEXT,
 	PRIMARY KEY("id" AUTOINCREMENT)
 ))";
     db::query<table1>();
@@ -100,9 +101,10 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
     });
     server.Get("/snippets", [](const httplib::Request &req, httplib::Response &res) {
         res.set_header("Access-Control-Allow-Origin", "*");
+        auto t = req.get_param_value("t");
         static const char query[]
-                = R"(SELECT content,keyword,id FROM snippet ORDER BY views)";
-        db::QueryResult fetch_row = db::query<query>();
+                = R"(SELECT content,keyword,id FROM snippet where type = ?1 ORDER BY views)";
+        db::QueryResult fetch_row = db::query<query>(t);
         std::string_view content, keyword, id;
         nlohmann::json doc = nlohmann::json::array();
         while (fetch_row(content, keyword, id)) {
@@ -118,9 +120,11 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
     server.Get("/snippet", [](const httplib::Request &req, httplib::Response &res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         auto k = req.get_param_value("k");
+        auto t = req.get_param_value("t");
+
         static const char query[]
-                = R"(SELECT content FROM snippet where keyword = ?1)";
-        db::QueryResult fetch_row = db::query<query>(k);
+                = R"(SELECT content FROM snippet where keyword = ?1 and type = ?2)";
+        db::QueryResult fetch_row = db::query<query>(k, t);
         std::string_view content;
         if (fetch_row(content)) {
             res.set_content(content.data(), content.size(), "application/json");
@@ -128,7 +132,6 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
 
     });
 
-
     server.Post("/snippet", [](const httplib::Request &req, httplib::Response &res,
                                const httplib::ContentReader &content_reader) {
         res.set_header("Access-Control-Allow-Origin", "*");
@@ -147,45 +150,9 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
         if (doc.contains("content")) {
             content = doc["content"];
         }
-        int id = 0;
-        if (doc.contains("id")) {
-            id = doc["id"];
-        }
-        if (id == 0) {
-            static const char query[]
-                    = R"(INSERT INTO snippet (content,keyword) VALUES(?1,?2))";
-            db::QueryResult fetch_row = db::query<query>(content, keyword);
-
-            res.set_content(std::to_string(fetch_row.resultCode()),
-                            "text/plain; charset=UTF-8");
-        } else {
-            static const char query[]
-                    = R"(UPDATE snippet SET content=coalesce(NULLIF(?1,''),content),keyword=coalesce(NULLIF(?2,''),keyword) where id =?3)";
-            db::QueryResult fetch_row = db::query<query>(content, keyword, id);
-
-            res.set_content(std::to_string(fetch_row.resultCode()),
-                            "text/plain; charset=UTF-8");
-        }
-
-    });
-
-    server.Post("/snippet", [](const httplib::Request &req, httplib::Response &res,
-                               const httplib::ContentReader &content_reader) {
-        res.set_header("Access-Control-Allow-Origin", "*");
-
-        std::string body;
-        content_reader([&](const char *data, size_t data_length) {
-            body.append(data, data_length);
-            return true;
-        });
-        nlohmann::json doc = nlohmann::json::parse(body);
-        std::string keyword;
-        if (doc.contains("keyword")) {
-            keyword = doc["keyword"];
-        }
-        std::string content;
-        if (doc.contains("content")) {
-            content = doc["content"];
+        std::string type;
+        if (doc.contains("type")) {
+            type = doc["type"];
         }
         int id = 0;
         if (doc.contains("id")) {
@@ -193,37 +160,22 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
         }
         if (id == 0) {
             static const char query[]
-                    = R"(INSERT INTO snippet (content,keyword) VALUES(?1,?2))";
-            db::QueryResult fetch_row = db::query<query>(content, keyword);
+                    = R"(INSERT INTO snippet (content,keyword,type) VALUES(?1,?2,?3))";
+            db::QueryResult fetch_row = db::query<query>(content, keyword,type);
 
             res.set_content(std::to_string(fetch_row.resultCode()),
                             "text/plain; charset=UTF-8");
         } else {
             static const char query[]
-                    = R"(UPDATE snippet SET content=coalesce(NULLIF(?1,''),content),keyword=coalesce(NULLIF(?2,''),keyword) where id =?3)";
-            db::QueryResult fetch_row = db::query<query>(content, keyword, id);
+                    = R"(UPDATE snippet SET content=coalesce(NULLIF(?1,''),content),keyword=coalesce(NULLIF(?2,''),keyword),type=coalesce(NULLIF(?3,''),type) where id =?4)";
+            db::QueryResult fetch_row = db::query<query>(content, keyword, type, id);
 
             res.set_content(std::to_string(fetch_row.resultCode()),
                             "text/plain; charset=UTF-8");
         }
 
     });
-    server.Post("/snippet/delete", [](const httplib::Request &req, httplib::Response &res,
-                                      const httplib::ContentReader &content_reader) {
-        res.set_header("Access-Control-Allow-Origin", "*");
 
-        std::string body;
-        content_reader([&](const char *data, size_t data_length) {
-            body.append(data, data_length);
-            return true;
-        });
-        static const char query[]
-                = R"(DELETE FROM snippet WHERE content = ?1)";
-        db::QueryResult fetch_row = db::query<query>(body);
-
-        res.set_content(std::to_string(fetch_row.resultCode()),
-                        "text/plain; charset=UTF-8");
-    });
     server.Post("/snippet/hit", [](const httplib::Request &req, httplib::Response &res,
                                    const httplib::ContentReader &content_reader) {
         res.set_header("Access-Control-Allow-Origin", "*");

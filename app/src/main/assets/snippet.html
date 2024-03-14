@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代码段</title>
+    <style>
+        html {
+            font-size: 10px;
+            font-family: Roboto, Arial, sans-serif;
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            font-size: 1.2rem;
+            overflow-x: hidden;
+            height: 100%;
+        }
+
+        input,
+        textarea {
+            background-color: transparent;
+            padding-bottom: 4px;
+            outline: none;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 0;
+            margin-bottom: 1px;
+            font: inherit;
+            color: #0f0f0f
+        }
+
+        input::-webkit-input-placeholder,
+        textarea::-webkit-input-placeholder {
+            color: #606060;
+            opacity: 1
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #606060;
+            opacity: 1
+        }
+
+        textarea {
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 8.4rem;
+            width: 100%;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 8px
+        }
+    </style>
+</head>
+
+<body>
+    <div
+        style="display: grid;grid-template-columns: 100px 1fr;justify-items: center;font-size: 16px;line-height: 24px;">
+
+    </div>
+    <div style="display: flex;flex-direction:column;">
+        <textarea></textarea>
+        <div style="width: 100%;display: flex;justify-content: center;margin-top: 12px;">
+            <button>确认</button>
+        </div>
+    </div>
+    <div style="display: flex;padding: 12px;flex-direction: column;">
+        <a href="https://developer.mozilla.org/docs/Web/SVG">SVG: Scalable Vector Graphics</a>
+    </div>
+</body>
+<script>
+    let baseUri = window.location.host === "127.0.0.1:5500" ? "http://192.168.8.55:8090" : "";
+    const button = document.querySelector("button");
+    const textarea = document.querySelector("textarea");
+    const searchParam = new URL(window.location).searchParams;
+    const t = searchParam.get("t")
+        || '0';
+    async function load() {
+
+        const res = await fetch(`${baseUri}/snippets?t=${t}`);
+        return res.json();
+    }
+    async function render() {
+        const data = await load();
+        const container = document.querySelector("div")
+        data.forEach(x => {
+            const keyword = document.createElement("div");
+            keyword.textContent = x.keyword;
+            container.appendChild(keyword);
+            const content = document.createElement("div");
+            content.textContent = x.content;
+            container.appendChild(content);
+
+            keyword.addEventListener("click", () => {
+                textarea.value = x.id;
+            });
+            content.addEventListener("click", () => {
+                textarea.value = x.id;
+            });
+
+        });
+    }
+    async function initialize() {
+        button.addEventListener('click', async () => {
+            const s = textarea.value.trim();
+            if (!s) return;
+            const index = s.indexOf("\n");
+            if (index === -1) return;
+
+            const start = s.substring(0, index);
+            const end = s.substring(index + 1);
+            let id = 0;
+            let keyword;
+            let content = end;
+            if (/^\d/.test(start)) {
+                id = parseInt(/^\d+/.exec(start)[0])
+                keyword = start.substring((id + '').length).trim();
+            } else {
+                keyword = start;
+            }
+            const t = new URL(window.location).searchParams.get("t")
+                || '0';
+            const obj = {
+                keyword,
+                content,
+                type: t
+            };
+            if (id) {
+                obj.id = id;
+            }
+            const res = await fetch(`${baseUri}/snippet`, {
+                method: "POST",
+                body: JSON.stringify(obj)
+            });
+
+        });
+        await render();
+    }
+    initialize();
+</script>
+
+</html>
