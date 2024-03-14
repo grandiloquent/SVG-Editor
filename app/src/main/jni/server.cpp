@@ -181,7 +181,7 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
         if (id == 0) {
             static const char query[]
                     = R"(INSERT INTO snippet (content,keyword,type) VALUES(?1,?2,?3))";
-            db::QueryResult fetch_row = db::query<query>(content, keyword,type);
+            db::QueryResult fetch_row = db::query<query>(content, keyword, type);
 
             res.set_content(std::to_string(fetch_row.resultCode()),
                             "text/plain; charset=UTF-8");
@@ -212,6 +212,30 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
         res.set_content(std::to_string(fetch_row.resultCode()),
                         "text/plain; charset=UTF-8");
     });
+    server.Get("/svgviewer", [](const httplib::Request &req, httplib::Response &res) {
+        res.set_header("Access-Control-Allow-Origin", "*");
+        auto id = req.get_param_value("id");
+        static const char query[]
+                = R"(select title, content, create_at, update_at from svg WHERE id = ?1)";
+        db::QueryResult fetch_row = db::query<query>(id);
+        std::string_view title, content, create_at, update_at;
 
+        if (fetch_row(title, content, create_at, update_at)) {
+
+            std::stringstream ss;
+            ss << R"(<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>)" << title << R"(</title>
+</head>
+
+<body>)" << content << R"(</body></html>)";
+            res.set_content(ss.str(), "text/html");
+        }
+    });
     server.listen(host, port);
 }
