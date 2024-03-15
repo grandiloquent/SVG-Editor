@@ -88,7 +88,7 @@
     }
 
     async function loadData() {
-        const res = await fetch(`${baseUri}/svg?id=${id}`);
+        const res = await fetch(`${baseUri}/svg?id=${id}`, {cache: "no-store"});
         const body = await res.json();;
         document.title = body["title"];
         textarea.value = `${body["title"]}
@@ -182,7 +182,7 @@ ${body["content"]}`;
         const points = getWord(textarea);
         let word = textarea.value.substring(points[0], points[1]);
 
-        const res = await fetch(`${baseUri}/snippet?k=${word}&t=0`)
+        const res = await fetch(`${baseUri}/snippet?k=${word}&t=0`, {cache: "no-store"})
         if (res.status === 200) {
             textarea.setRangeText(await res.text(), points[0], points[1]);
         }
