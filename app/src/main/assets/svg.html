@@ -192,7 +192,7 @@ ${body["content"]}`;
         let s = textarea.value.substring(points[0], points[1]).trim();
         if (s.startsWith("<!--") && s.endsWith("-->")) {
             s = s.substring("<!--".length);
-            s = s.substring(0,s.length - "-->".length);
+            s = s.substring(0, s.length - "-->".length);
         } else {
             s = `<!--${s}-->`;
         }
@@ -275,6 +275,15 @@ ${body["content"]}`;
             }
         ],
     ];
+    document.addEventListener('keydown', async evt => {
+        if (evt.ctrlKey) {
+            if (evt.key === 's') {
+                evt.preventDefault();
+                await saveData();
+            }
+        }
+
+    })
     initializeToolbars()
     loadData();
 </script>
