@@ -281,6 +281,11 @@ ${body["content"]}`;
                 evt.preventDefault();
                 await saveData();
             }
+        }else {
+            if (evt.key === 'F1') {
+                evt.preventDefault();
+                snippet(textarea);
+            }
         }
 
     })
