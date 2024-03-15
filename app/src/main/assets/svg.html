@@ -32,7 +32,7 @@
 
     let baseUri = window.location.host === "127.0.0.1:5500" ? "http://192.168.8.55:8090" : "..";
     const searchParams = new URL(window.location).searchParams;
-    const id = searchParams.get('id');
+    let id = searchParams.get('id');
     const path = searchParams.get('path');
     const textarea = document.getElementById("textarea");
 
@@ -84,7 +84,9 @@
             }
             if (!nid) {
                 var queryParams = new URLSearchParams(window.location.search);
-                queryParams.set("id", await res.text());
+                let sid = await res.text();
+                queryParams.set("id", sid);
+                id = parseInt(sid);
                 history.replaceState(null, null, "?" + queryParams.toString());
             }
             toast.setAttribute('message', '成功');
@@ -428,7 +430,8 @@ ${fn(selectedString.trim())}${textarea.value.substring(selectionEnd)}`;
             1,
             "preview",
             "预览",
-            () => {
+            async () => {
+                await saveData();
                 window.open(`${baseUri}/svgviewer?id=${id}`, '_blank');
             }
         ], [
