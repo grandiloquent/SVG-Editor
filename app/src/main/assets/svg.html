@@ -198,6 +198,169 @@ ${body["content"]}`;
         }
         textarea.setRangeText(s, points[0], points[1]);
     }
+    function animateShape(selectedString) {
+        let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.innerHTML = selectedString;
+        svg.style.position = 'absolute';
+        svg.style.left = '-100%';
+        document.body.appendChild(svg);
+
+        var len = svg.children[0].getTotalLength();
+        svg.remove();
+        return `
+${substringBefore(selectedString, '>')} 
+fill="none" 
+stroke="red" 
+stroke-width="4"
+stroke-dasharray="${len}"
+stroke-dashoffset="${len}" >
+<animate id="" 
+begin="1s" 
+attributeName="stroke-dashoffset" 
+values="${len};0" 
+dur="1s" 
+calcMode="linear" 
+fill="freeze"/>
+</${selectedString.match(/(?<=<)[^ ]+/)}>
+`;
+    }
+    function animatePath(selectedString) {
+        let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', selectedString);
+        svg.appendChild(path);
+        svg.style.position = 'absolute';
+        svg.style.left = '-100%';
+        document.body.appendChild(svg);
+
+        var len = path.getTotalLength();
+        svg.remove();
+        return `
+<path d="${selectedString}" 
+fill="none" 
+stroke="red" 
+stroke-width="4"
+stroke-dasharray="${len}"
+stroke-dashoffset="${len}" >
+<animate id="" 
+begin="1s" 
+attributeName="stroke-dashoffset" 
+values="${len};0" 
+dur="1s" 
+calcMode="linear" 
+fill="freeze"/>
+</path>
+`;
+    }
+    function drawPolygon(x, y, n, radius, options = {}) {
+        const array = [];
+        array.push(
+            [x + radius * Math.cos(options.rotation || 0),
+            y + radius * Math.sin(options.rotation || 0)]);
+        for (let i = 1; i <= n; i += 1) {
+            const angle = (i * (2 * Math.PI / n)) + (options.rotation || 0);
+            array.push(
+                [
+                    x + radius * Math.cos(angle),
+                    y + radius * Math.sin(angle)
+                ])
+        }
+        const d = `M${array.map(x => `${x[0]} ${x[1]}`).join('L')}`;
+        return `<path stroke="#FF5722" fill="none" stroke-width="4"  d="${d}">
+</path>`
+    }
+    function getTotalLength(d) {
+        let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', d);
+        svg.appendChild(path);
+        svg.style.position = 'absolute';
+        svg.style.left = '-100%';
+        document.body.appendChild(svg);
+
+        var len = path.getTotalLength();
+        svg.remove();
+        return len;
+    }
+    function getBBox(s, isLen) {
+        let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.innerHTML = s;
+        svg.style.position = 'absolute';
+        svg.style.left = '-100%';
+        document.body.appendChild(svg);
+
+        var len = isLen ? svg.children[0].getTotalLength() : svg.children[0].getBBox();
+        svg.remove()
+        return len;
+    }
+    function getCenterPath(s, offset) {
+        let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.innerHTML = s;
+        svg.style.position = 'absolute';
+        svg.style.left = '-100%';
+        document.body.appendChild(svg);
+
+        var len = svg.children[0].getTotalLength();
+        let first = svg.children[0].getPointAtLength(len / 2 - offset)
+        let second = svg.children[0].getPointAtLength(len / 2 + offset)
+
+        svg.remove()
+        return [first, second];
+    }
+    function getNormalPath(s, offset) {
+        let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.innerHTML = s;
+        svg.style.position = 'absolute';
+        svg.style.left = '-100%';
+        document.body.appendChild(svg);
+
+        var len = svg.children[0].getTotalLength();
+        let firstPoint = svg.children[0].getPointAtLength(0)
+        let secondPoint = svg.children[0].getPointAtLength(len)
+        var deg = Math.atan2(firstPoint.y - secondPoint.y, firstPoint.x - secondPoint.x) * (180 / Math.PI);
+        deg = 180 - deg;
+        var offsetX = Math.sin(deg / Math.PI * 180) * offset;
+        var offsetY = Math.cos(deg / Math.PI * 180) * offset;
+
+        svg.remove()
+        return `M${firstPoint.x + offsetX} ${firstPoint.y + offsetY}L${secondPoint.x + offsetX} ${secondPoint.y + offsetY}`;
+    }
+    function calculateMoveAlongNormalPath(s) {
+        let offset = substringBefore(s, "<path").trim();
+        let path = "<path" + substringAfter(s, "<path");
+        let v = getNormalPath(path, parseInt(offset))
+        return s.replace(/(?<=d=")[^"]+(?=")/, v);
+    }
+    function calculateCenterTextPath(s) {
+        let path = substringBefore(s, "<text");
+        let text = "<text" + substringAfter(s, "<text");
+        let box = getBBox(text, false);
+        const points = getCenterPath(path, box.width / 2);
+        const first = points[0];
+        const second = points[1];
+        let v = `M${first.x} ${first.y}L${second.x} ${second.y}`
+        return `<defs>
+    <path
+      id="tp1"
+      fill="none"
+      stroke="red"
+      d="${v}" />
+    </defs>
+  
+  
+
+    <text font-size="36px" font-family="苹方">
+      <textPath href="#tp1" startOffset="-100%">${s.match(/(?<=>)[^<]+(?=<\/text)/)}
+      <animate attributeName="startOffset" from="-100%" to ="0%" begin="0s" dur="1s" repeatCount="1" id="t1" fill="freeze"/>
+      </textPath>
+    </text>
+    
+    `
+
+        //s.replace(/(?<=d=")[^"]+(?=")/, v);
+    }
+    
+
     async function initializeToolbars() {
         let topIndexs;
         let bottomIndexs;
@@ -281,7 +444,7 @@ ${body["content"]}`;
                 evt.preventDefault();
                 await saveData();
             }
-        }else {
+        } else {
             if (evt.key === 'F1') {
                 evt.preventDefault();
                 snippet(textarea);
