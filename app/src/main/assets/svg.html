@@ -359,8 +359,42 @@ fill="freeze"/>
 
         //s.replace(/(?<=d=")[^"]+(?=")/, v);
     }
-    
+    function processSelection(fn) {
+        let selectionStart = textarea.selectionStart;
+        let selectionEnd = textarea.selectionEnd;
+        let selectedString = textarea.value.substring(selectionStart, selectionEnd);
+        if (!selectedString) {
+            selectedString = getLine(textarea);
+            if (textarea.value[selectionStart] !== '\n') {
+                while (selectionStart + 1 < textarea.value.length && textarea.value[selectionStart + 1] !== '\n') {
+                    selectionStart++;
+                }
+                selectionStart++;
+            }
 
+            selectionEnd = selectionStart
+            textarea.value = `${textarea.value.substring(0, selectionStart)}
+${fn(selectedString.trim())}${textarea.value.substring(selectionEnd)}`;
+            return;
+        }
+        textarea.value = `${textarea.value.substring(0, selectionStart)}${fn(selectedString.trim())}${textarea.value.substring(selectionEnd)}`;
+
+    }
+    function calculate() {
+
+        processSelection(s => {
+            if (s.indexOf('<path') !== -1 &&
+                s.indexOf('<text') !== -1) {
+                return calculateCenterTextPath(s)
+            } else if (/^[0-9]+<path/.test(s)) {
+                return calculateMoveAlongNormalPath(s)
+            } else if (/\d+,\d+,\d+,\d+/.test(s)) {
+                return eval(`drawPolygon(${s})`);
+            } else {
+                return eval(s);
+            }
+        })
+    }
     async function initializeToolbars() {
         let topIndexs;
         let bottomIndexs;
@@ -376,7 +410,7 @@ fill="freeze"/>
                 bottomIndexs = results[1];
             }
         } catch (error) {
-            topIndexs = [1, 6, 7, 4]
+            topIndexs = [1, 6, 7, 8, 4]
             bottomIndexs = [2, 3, 5]
         }
         insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
@@ -435,6 +469,13 @@ fill="freeze"/>
             "注释",
             () => {
                 commentLine(textarea)
+            }
+        ], [
+            8,
+            "animation",
+            "动画",
+            () => {
+                calculate()
             }
         ],
     ];
