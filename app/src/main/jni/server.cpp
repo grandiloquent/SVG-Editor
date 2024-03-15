@@ -26,7 +26,7 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
 ))";
     db::query<table1>();
     AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
-    std::map <std::string, std::string> t{};
+    std::map<std::string, std::string> t{};
     std::string d{"application/octet-stream"};
     httplib::Server server;
     server.Get(R"(/(.+\.(?:js|css|html|xhtml|ttf|png|jpg|jpeg|gif|json|svg|wasm))?)",
@@ -77,8 +77,18 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
                                                          GetTimeStamp(),
                                                          GetTimeStamp()
             );
-            res.set_content(std::to_string(fetch_row.resultCode()),
-                            "text/plain; charset=UTF-8");
+            static const char query1[]
+                    = R"(SELECT last_insert_rowid())";
+            std::string_view rowid;
+            auto fr = db::query<query1>();
+            if (fr(rowid)) {
+                res.set_content(std::string{rowid.begin(), rowid.end()},
+                                "text/plain; charset=UTF-8");
+            } else {
+                res.set_content(std::to_string(fetch_row.resultCode()),
+                                "text/plain; charset=UTF-8");
+            }
+
         }
     });
     server.Get("/svg", [](const httplib::Request &req, httplib::Response &res) {
