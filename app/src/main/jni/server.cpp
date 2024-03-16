@@ -233,7 +233,7 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
         if (fetch_row(title, content, create_at, update_at)) {
 
             std::stringstream ss;
-            if (content.find("const createScene = () => {") != std::string::npos) {
+            if (content.find("const createScene = ") != std::string::npos) {
                 ss << R"()"
                    << R"()"
 //                   << R"()"
@@ -328,7 +328,7 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
     window.engine = await asyncEngineCreation();
     if (!engine) throw 'engine should not be null.';
     startRenderLoop(engine, canvas);
-    window.scene = createScene();
+    window.scene =await createScene();
   };
   initFunction().then(() => {
     sceneToRender = scene

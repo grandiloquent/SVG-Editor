@@ -106,7 +106,11 @@ ${body["content"]}`;
 
     function formatCode() {
         const options = { indent_size: 2 }
-        textarea.value = html_beautify(textarea.value, options);
+        if(textarea.value.indexOf("const createScene = ")!==-1){
+            textarea.value = js_beautify(textarea.value, options);
+        }else{
+            textarea.value = html_beautify(textarea.value, options);
+        }
     }
     function getWord(textarea) {
         let start = textarea.selectionStart;
