@@ -234,11 +234,6 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
 
             std::stringstream ss;
             if (content.find("const createScene = ") != std::string::npos) {
-                ss << R"()"
-                   << R"()"
-//                   << R"()"
-//                   << R"()"
-                   << R"()";
 
                 ss << R"(<!DOCTYPE html>
 <html lang="en">
