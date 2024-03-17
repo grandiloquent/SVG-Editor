@@ -115,10 +115,10 @@ ${body["content"]}`;
     function getWord(textarea) {
         let start = textarea.selectionStart;
         let end = textarea.selectionEnd;
-        while (start - 1 > -1 && /[a-zA-Z0-9_\u3400-\u9FBF]/.test(textarea.value[start - 1])) {
+        while (start - 1 > -1 && /[a-zA-Z0-9_\u3400-\u9FBF.]/.test(textarea.value[start - 1])) {
             start--;
         }
-        while (end < textarea.value.length && /[a-zA-Z0-9_\u3400-\u9FBF]/.test(textarea.value[end])) {
+        while (end < textarea.value.length && /[a-zA-Z0-9_\u3400-\u9FBF.]/.test(textarea.value[end])) {
             end++;
         }
         return [start, end];
@@ -194,6 +194,19 @@ ${body["content"]}`;
         const points = getWord(textarea);
         let word = textarea.value.substring(points[0], points[1]);
 
+        if (word.indexOf('.') !== -1) {
+            let start = substringBefore(word, ".");
+            let end = substringAfter(word, ".");
+            if (end === 'not') {
+                textarea.setRangeText(`if(${start}!==0){
+                }else{
+                }`, points[0], points[1]);
+                return;
+            } else {
+                textarea.setRangeText(`let ${start} = 0;`, points[0], points[1]);
+                return;
+            }
+        }
         const res = await fetch(`${baseUri}/snippet?k=${word}&t=0`, { cache: "no-store" })
         if (res.status === 200) {
             textarea.setRangeText(await res.text(), points[0], points[1]);
