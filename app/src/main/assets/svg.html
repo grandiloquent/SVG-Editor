@@ -106,9 +106,9 @@ ${body["content"]}`;
 
     function formatCode() {
         const options = { indent_size: 2 }
-        if(textarea.value.indexOf("const createScene = ")!==-1){
+        if (textarea.value.indexOf("const createScene = ") !== -1) {
             textarea.value = js_beautify(textarea.value, options);
-        }else{
+        } else {
             textarea.value = html_beautify(textarea.value, options);
         }
     }
@@ -436,7 +436,11 @@ ${fn(selectedString.trim())}${textarea.value.substring(selectionEnd)}`;
             "预览",
             async () => {
                 await saveData();
-                window.open(`${baseUri}/svgviewer?id=${id}`, '_blank');
+                if (typeof NativeAndroid !== 'undefined') {
+                    NativeAndroid.launchApp("psycho.euphoria.l", `/svgviewer?id=${id}`);
+                } else {
+                    window.open(`${baseUri}/svgviewer?id=${id}`, '_blank');
+                }
             }
         ], [
             2,

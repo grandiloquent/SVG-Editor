@@ -72,6 +72,9 @@
     <div style="display: flex;padding: 12px;flex-direction: column;">
         <a href="https://developer.mozilla.org/docs/Web/SVG">SVG: Scalable Vector Graphics</a>
         <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths">Paths</a>
+        <a href="https://threejs.org/examples">three.js examples</a>
+        <a href="https://github.com/mrdoob/three.js/tree/master/examples">three.js examples</a>
+        <a href="https://hofk.de/main/discourse.threejs/">  * discourse.threejs.hofk.de </a>
     </div>
 </body>
 <script>
@@ -83,7 +86,7 @@
         || '0';
     async function load() {
 
-        const res = await fetch(`${baseUri}/snippets?t=${t}`, {cache: "no-store"});
+        const res = await fetch(`${baseUri}/snippets?t=${t}`, { cache: "no-store" });
         return res.json();
     }
     async function render() {

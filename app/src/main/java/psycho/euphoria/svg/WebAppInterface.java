@@ -112,23 +112,26 @@ public class WebAppInterface {
 
     @JavascriptInterface
     public void launchApp(String text) {
-        String path = null;
-        if (text.equals("文本图片")) {
-            path = "/text.html";
-        }
-        if (text.equals("天气")) {
-            path = "/weather.html";
-        }
-        if (path != null) {
-            openLocalPage(mContext, path);
-            return;
-        }
         Intent launchIntent = mContext.getPackageManager().getLaunchIntentForPackage(text);
         if (launchIntent != null) {
             mContext.startActivity(launchIntent);//null pointer check in case package name was not found
         }
     }
+    @JavascriptInterface
+    public void launchApp(String text, String uri) {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        //intent.setPackage("psycho.euphoria.l");
+        intent.setClassName("psycho.euphoria.l",
+                "psycho.euphoria.l.MainActivity");
+        if (uri.startsWith("https://") || uri.startsWith("http://"))
+            intent.setData(Uri.parse(uri));
+        else
+            intent.setData(Uri.parse(String.format("http://%s:8090%s", Shared.getDeviceIP(mContext), uri)));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        mContext.startActivity(intent);//null pointer check in case package name was not found
 
+    }
     @JavascriptInterface
     public String listAllPackages() {
         // get list of all the apps installed
