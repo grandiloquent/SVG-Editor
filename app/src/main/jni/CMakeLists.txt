@@ -16,7 +16,7 @@ add_subdirectory(nlohmann_json)
 add_library(shared SHARED shared.cpp)
 target_link_libraries(shared android log)
 
-add_library(server SHARED server.cpp utils.cpp)
+add_library(server SHARED server.cpp)
 target_link_libraries(server httplib shared android sqlite3 nlohmann_json::nlohmann_json)
 
 target_link_libraries(nativelib

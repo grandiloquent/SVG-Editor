@@ -22,6 +22,69 @@ std::string Trans(const std::string &q, const std::string &to) {
     }
 }
 
+void serveFile(const std::filesystem::path &p, httplib::Response &res,
+               const std::map<std::string, std::string> t, std::string &d) {
+
+    if (p.extension().string() == ".html" || p.extension().string() == ".xhtml") {
+        auto s = ReadAllText(p);
+        s = ReplaceFirst(s, "</head>",
+                         R"(<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>)");
+        res.set_content(s, "text/html");
+        return;
+    }
+
+    std::shared_ptr<std::ifstream> fs = std::make_shared<std::ifstream>();
+    fs->exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    try {
+        fs->open(p, std::ios_base::binary);
+    } catch (std::system_error &e) {
+        res.status = 404;
+        return;
+    }
+    fs->seekg(0, std::ios_base::end);
+    auto end = fs->tellg();
+
+    if (end == 0)return;
+    fs->seekg(0);
+    std::map<std::string, std::string> file_extension_and_mimetype_map;
+    auto contentType = httplib::detail::find_content_type(p, t, d);
+    if (contentType.empty()) {
+        contentType = "application/octet-stream";
+    }
+    res.set_content_provider(static_cast<size_t>(end),
+                             contentType,
+                             [fs](uint64_t offset,
+                                  uint64_t length,
+                                  httplib::DataSink &sink) {
+                                 if (fs->fail()) {
+                                     return false;
+                                 }
+                                 fs->seekg(offset, std::ios_base::beg);
+                                 size_t bufSize = 81920;
+                                 char buffer[bufSize];
+
+                                 try {
+                                     fs->read(buffer, bufSize);
+                                 } catch (std::system_error &e) {
+                                 }
+                                 sink.write(buffer,
+                                            static_cast<size_t>(fs->gcount()));
+                                 return true;
+                             });
+}
+
+
+std::filesystem::path FindFile(const httplib::Request &req) {
+
+    auto dir = std::filesystem::path{"/storage/emulated/0/.editor"};
+    auto p = dir.append(req.path.substr(1));
+    if (exists(p)) {
+        return p;
+    }
+    return std::filesystem::path{
+    };
+}
+
 void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int port) {
     static const char table[]
             = R"(CREATE TABLE IF NOT EXISTS "svg" (
@@ -58,7 +121,13 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
                    ReadBytesAsset(mgr, p,
                                   &data, &len);
                    auto str = std::string(reinterpret_cast<const char *>(data), len);
-
+                   if (str.length() == 0 ) {
+                       auto file = FindFile(req);
+                       if (is_regular_file(file)) {
+                           serveFile(file, res, t, d);
+                           return;
+                       }
+                   }
                    auto content_type = httplib::detail::find_content_type(p, t, d);
                    res.set_content(str, content_type);
                });
