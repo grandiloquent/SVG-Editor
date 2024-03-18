@@ -3,6 +3,25 @@
 static const char db_name[] = "/storage/emulated/0/.editor/svg.db";
 using db = sqlite::Database<db_name>;
 
+std::string Trans(const std::string &q, const std::string &to) {
+    httplib::Client cli("translate.google.com", 80);
+    std::stringstream ss;
+    ss << "/translate_a/single?client=gtx&sl=auto&tl=";
+    ss << to;
+    ss << "&dt=t&dt=bd&ie=UTF-8&oe=UTF-8&dj=1&source=icon&q=";
+    ss << EncodeUrl(q);
+    if (auto res = cli.Get(
+            ss.str(),
+            {{"User-Agent",
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+              "(KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"}})) {
+
+        return res->body;
+    } else {
+        return {};
+    }
+}
+
 void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int port) {
     static const char table[]
             = R"(CREATE TABLE IF NOT EXISTS "svg" (
@@ -307,7 +326,8 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
       disableWebGL2Support: false
     });
   };
-)" << content << R"( window.initFunction = async function() {
+)" << content << R"(
+window.initFunction = async function() {
 
 
 
@@ -351,6 +371,13 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
 
             res.set_content(ss.str(), "text/html");
         }
+    });
+    server.Get("/trans", [](const httplib::Request &req, httplib::Response &res) {
+        res.set_header("Access-Control-Allow-Origin", "*");
+        auto q = req.get_param_value("q");
+        auto to = req.get_param_value("to");
+        auto s = Trans(q, to);
+        res.set_content(s, "application/json");
     });
     server.listen(host, port);
 }
