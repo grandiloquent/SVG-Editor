@@ -597,6 +597,24 @@ ${second.replaceAll(new RegExp("\\b" + pieces[0] + "\\b", 'g'), pieces[1])}`;
         writeText(s);
         textarea.setRangeText("", points[0], points[1]);
     }
+    function copyLine(textarea) {
+        let points = getLine(textarea);
+        let s = textarea.value.substring(points[0], points[1]).trim();
+
+
+        let str = `
+${s.replace(/\b[a-zA-Z_]+[0-9]+\b/g, v => {
+            let vv = /([a-zA-Z_]+)([0-9]+)/.exec(v);
+            return vv[1] + (parseInt(vv[2]) + 1);
+        })}`;
+        let selectionEnd = textarea.selectionEnd;
+
+        while (selectionEnd < textarea.value.length && textarea.value[selectionEnd] !== '\n') {
+            selectionEnd++;
+        }
+        textarea.setRangeText(str, selectionEnd, selectionEnd);
+
+    }
     async function initializeToolbars() {
         let topIndexs;
         let bottomIndexs;
@@ -613,7 +631,7 @@ ${second.replaceAll(new RegExp("\\b" + pieces[0] + "\\b", 'g'), pieces[1])}`;
             }
         } catch (error) {
             topIndexs = [1, 6, 7, 8, 4, 11, 12]
-            bottomIndexs = [2, 3, 5, 9, 10,13]
+            bottomIndexs = [2, 3, 5, 9, 10, 13, 14]
         }
         insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
         insertItem(bottomIndexs, '.bar-renderer.bottom', 'bar-item-tab');
@@ -719,6 +737,13 @@ ${second.replaceAll(new RegExp("\\b" + pieces[0] + "\\b", 'g'), pieces[1])}`;
             () => {
 
                 deleteLine(textarea)
+            }
+        ], [
+            14,
+            "content_copy",
+            "复行",
+            () => {
+                copyLine(textarea)
             }
         ],
     ];
