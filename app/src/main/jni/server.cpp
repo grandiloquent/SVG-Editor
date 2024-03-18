@@ -111,7 +111,7 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
     std::map<std::string, std::string> t{};
     std::string d{"application/octet-stream"};
     httplib::Server server;
-    server.Get(R"(/(.+\.(?:js|css|html|xhtml|ttf|png|jpg|jpeg|gif|json|svg|wasm))?)",
+    server.Get(R"(/(.+\.(?:js|css|html|xhtml|ttf|png|jpg|jpeg|gif|json|svg|wasm|babylon))?)",
                [&t, mgr, &d](const httplib::Request &req,
                              httplib::Response &res) {
                    res.set_header("Access-Control-Allow-Origin", "*");

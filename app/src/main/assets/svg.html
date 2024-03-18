@@ -420,6 +420,110 @@ ${fn(selectedString.trim())}${textarea.value.substring(selectionEnd)}`;
             }
         })
     }
+
+    function searchWord(textarea) {
+
+        let selectedString = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd).trim();
+        s = selectedString;
+
+        let index = textarea.value.indexOf(s, textarea.selectionEnd);
+        if (index === -1)
+            index = textarea.value.indexOf(s);
+
+        textarea.focus();
+        textarea.scrollTop = 0;
+        const fullText = textarea.value;
+        textarea.value = fullText.substring(0, index + s.length);
+        textarea.scrollTop = textarea.scrollHeight;
+        textarea.value = fullText;
+
+        textarea.selectionStart = index;
+        textarea.selectionEnd = index + s.length;
+
+    }
+
+
+    function getLineBackforward(textarea, start) {
+    let end = start;
+    while (start - 1 > -1) {
+        if (textarea.value[start] === '\n') break;
+        start--;
+    }
+    return [start, end];
+}
+    function getBlockString() {
+    let selectionStart = textarea.selectionStart;
+    let count = 0;
+    // while (selectionStart - 1 > -1) {
+    //     if (textarea.value[selectionStart] === '{') {
+    //         if (count == 0)
+    //             break;
+    //         else count--;
+    //     } else if (textarea.value[selectionStart] === '}') {
+    //         count++;
+    //     }
+    //     selectionStart--;
+    // }
+    while (selectionStart - 1 > -1) {
+        if (textarea.value[selectionStart] === '{') {
+            let points = getLineBackforward(textarea, selectionStart);
+            let s = textarea.value.substring(points[0], points[1]);
+            if (/\n\s*[a-zA-Z0-9]+ +[a-zA-Z0-9_]+ *\(/.test(s)) {
+                selectionStart = points[0];
+                break;
+            }
+        }
+        selectionStart--;
+    }
+    let selectionEnd = textarea.selectionEnd;
+    while (selectionEnd < textarea.value.length) {
+        if (textarea.value[selectionEnd] === '}') {
+            if (count == 0)
+                break;
+            else count--;
+        } else if (textarea.value[selectionEnd] === '{') {
+            count++;
+        }
+        selectionEnd++;
+    }
+    return [selectionStart, selectionEnd];
+
+}
+
+    async function functions(textarea) {
+
+        let points = getWord(textarea);
+        let s = textarea.value.substring(points[0], points[1]).trim();
+        let t = 'zh-CN';
+        if (/[\u3400-\u9FBF]/.test(s)) {
+            t = 'en'
+        }
+        let name = "f";
+        try {
+            const response = await fetch(`${baseUri}/trans?to=${t}&q=${encodeURIComponent(s)}`);
+            if (response.status > 399 || response.status < 200) {
+                throw new Error(`${response.status}: ${response.statusText}`)
+            }
+            const results = await response.json();
+            const trans = results.sentences.map(x => x.trans);
+            name = camel(trans.join(' '));
+
+        } catch (error) {
+            console.log(error);
+        }
+
+        points = findExtendPosition(textarea);
+        s = substringAfter(textarea.value.substring(points[0], points[1]).trim(), "\n");
+        let ssPoints = getBlockString(textarea);
+        textarea.setRangeText(`${name}();`, points[0], points[1]);
+        let selectionStart = ssPoints[0];
+        s = `function ${name}(){
+${s}
+
+}
+`
+        textarea.setRangeText(s, selectionStart, selectionStart);
+    }
     async function initializeToolbars() {
         let topIndexs;
         let bottomIndexs;
@@ -436,7 +540,7 @@ ${fn(selectedString.trim())}${textarea.value.substring(selectionEnd)}`;
             }
         } catch (error) {
             topIndexs = [1, 6, 7, 8, 4]
-            bottomIndexs = [2, 3, 5]
+            bottomIndexs = [2, 3, 5, 9,10]
         }
         insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
         insertItem(bottomIndexs, '.bar-renderer.bottom', 'bar-item-tab');
@@ -506,6 +610,20 @@ ${fn(selectedString.trim())}${textarea.value.substring(selectionEnd)}`;
             "动画",
             () => {
                 calculate()
+            }
+        ], [
+            9,
+            "search",
+            "搜索",
+            () => {
+                searchWord(textarea);
+            }
+        ], [
+            10,
+            "text_snippet",
+            "函数",
+            () => {
+                functions(textarea);
             }
         ],
     ];
