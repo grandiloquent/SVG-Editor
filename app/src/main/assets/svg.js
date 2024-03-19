@@ -566,7 +566,26 @@ function deleteLine(textarea) {
     textarea.setRangeText("", points[0], points[1]);
 }
 function copyLine(textarea) {
-    let points = getLine(textarea);
+    if (textarea.value[textarea.selectionStart] === "<") {
+        let start = textarea.selectionStart;
+        let end = start;
+        while (end < textarea.value.length && /[<a-z0-9A-Z]/.test(textarea.value[end])) {
+            end++;
+        }
+        let str = textarea.value.substring(start + 1, end);
+
+        while (end < textarea.value.length) {
+            if (textarea.value[end] === "/" && textarea.value.substring(end + 1, end + 1 + str.length) === str) {
+                end += str.length + 3;
+                break;
+            }
+            end++;
+        }
+        str = textarea.value.substring(start, end);
+        textarea.setRangeText(str, end + 1, end + 1);
+        return
+    }
+    let points = findExtendPosition(textarea);
     let s = textarea.value.substring(points[0], points[1]).trim();
 
 
