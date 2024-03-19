@@ -383,7 +383,11 @@ function calculate() {
             return calculateMoveAlongNormalPath(s)
         } else if (/\d+,\d+,\d+,\d+/.test(s)) {
             return eval(`drawPolygon(${s})`);
-        } else {
+        } else if (/^d="[^"]+"/.test(s)) {
+            return animatePath(/(?<=d=")[^"]+/.exec(s)[0])
+        }else if (s.startsWith("<")&&s.endsWith(">")) {
+            return animateShape(s)
+        }else {
             return eval(s);
         }
     })
@@ -673,7 +677,11 @@ const items = [
         () => {
             let points = getLine(textarea);
             let line = textarea.value.substring(points[0], points[1]);
-            textarea.setRangeText(eval(line), points[0], points[1])
+            let results = eval(line);
+            writeText(results);
+            textarea.setRangeText(`${line}
+            ${results}
+            `, points[0], points[1])
         }
     ], [
         7,
