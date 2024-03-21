@@ -385,9 +385,9 @@ function calculate() {
             return eval(`drawPolygon(${s})`);
         } else if (/^d="[^"]+"/.test(s)) {
             return animatePath(/(?<=d=")[^"]+/.exec(s)[0])
-        }else if (s.startsWith("<")&&s.endsWith(">")) {
+        } else if (s.startsWith("<") && s.endsWith(">")) {
             return animateShape(s)
-        }else {
+        } else {
             return eval(s);
         }
     })
@@ -752,6 +752,20 @@ document.addEventListener('keydown', async evt => {
         if (evt.key === 'F1') {
             evt.preventDefault();
             snippet(textarea);
+        } else if (evt.key === 'F2') {
+            evt.preventDefault();
+            location = '/svg.html'
+        } else if (evt.key === 'F3') {
+            evt.preventDefault();
+            textarea.value = "其他\n" + (await readText()).replace(`var createScene = `, `const createScene = async `)
+        } else if (evt.key === 'F4') {
+            evt.preventDefault();
+            await saveData();
+            if (typeof NativeAndroid !== 'undefined') {
+                NativeAndroid.launchApp("psycho.euphoria.l", `/svgviewer?id=${id}`);
+            } else {
+                window.open(`${baseUri}/svgviewer?id=${id}`, '_blank');
+            }
         }
     }
 

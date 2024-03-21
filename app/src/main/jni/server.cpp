@@ -121,7 +121,7 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
                    ReadBytesAsset(mgr, p,
                                   &data, &len);
                    auto str = std::string(reinterpret_cast<const char *>(data), len);
-                   if (str.length() == 0 ) {
+                   if (str.length() == 0) {
                        auto file = FindFile(req);
                        if (is_regular_file(file)) {
                            serveFile(file, res, t, d);
@@ -424,6 +424,25 @@ window.initFunction = async function() {
   });
 </script></body></html>)";
 
+            } else if (content.find("type=\"x-shader/x-fragment\"") != std::string::npos) {
+                ss << R"(<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>)" << title << R"(</title>
+</head>
+
+<body>
+<script id="vs" type="x-shader/x-vertex">#version 300 es
+in vec4 a_position;
+     void main() {
+       gl_Position = a_position;
+     }
+     </script>
+)" << content << R"(</body></html>)";
             } else {
                 ss << R"(<!DOCTYPE html>
 <html lang="en">
