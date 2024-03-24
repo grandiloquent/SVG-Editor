@@ -200,10 +200,10 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
     });
     server.Get("/search", [](const httplib::Request &req, httplib::Response &res) {
         res.set_header("Access-Control-Allow-Origin", "*");
-        
+
         auto q = req.get_param_value("q");
         static const char query[]
-                = R"(SELECT id,title,content,update_at FROM svg ORDER BY update_at DESC)";
+                = R"(SELECT id,title,content,update_at FROM svg)";
         db::QueryResult fetch_row = db::query<query>();
         std::string id, title, content, update_at;
 
