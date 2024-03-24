@@ -111,7 +111,7 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
     std::map<std::string, std::string> t{};
     std::string d{"application/octet-stream"};
     httplib::Server server;
-    server.Get(R"(/(.+\.(?:js|css|html|xhtml|ttf|png|jpg|jpeg|gif|json|svg|wasm|babylon))?)",
+    server.Get(R"(/(.+\.(?:js|css|html|xhtml|ttf|png|jpg|jpeg|gif|json|svg|wasm|babylon|blend|glb))?)",
                [&t, mgr, &d](const httplib::Request &req,
                              httplib::Response &res) {
                    res.set_header("Access-Control-Allow-Origin", "*");
@@ -372,7 +372,21 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
     height: 100%;
   }
 </style>
+<script>
+  window.onerror = function(errMsg, url, line, column, error) {
+    var result = !column ? '' : 'column: ' + column;
+    result += !error;
 
+    const div = document.createElement("div");
+    div.textContent = "\nError= " + errMsg + "\nurl= " + url + "\nline= " + line + result;
+    document.body.appendChild(div);
+    var suppressErrorAlert = true;
+    return suppressErrorAlert;
+  };
+  console.error = function(e) {
+    document.body.innerHTML = "<pre>" + [...arguments].map(x => `${JSON.stringify(x).replaceAll(/\\n/g,"\n")}`).join('\n') + "</pre>";
+  }
+</script>
 <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
 <script>
   var canvas = document.getElementById("renderCanvas");
