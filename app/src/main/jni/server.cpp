@@ -197,6 +197,30 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
             res.set_content(j.dump(), "application/json");
         }
     });
+    server.Get("/search", [](const httplib::Request &req, httplib::Response &res) {
+        auto q = req.get_param_value("q");
+        static const char query[]
+                = R"(SELECT id,title,content,update_at FROM svg ORDER BY update_at DESC)";
+        db::QueryResult fetch_row = db::query<query>();
+        std::string id, title, content, update_at;
+
+        nlohmann::json doc = nlohmann::json::array();
+        std::regex q_regex(q);
+        while (fetch_row(id, title, content, update_at)) {
+            if (std::regex_search(title, q_regex) || std::regex_search(content, q_regex)) {
+                nlohmann::json j = {
+
+                        {"id",        id},
+                        {"title",     title},
+                        {"update_at", update_at},
+
+                };
+                doc.push_back(j);
+            }
+
+        }
+        res.set_content(doc.dump(), "application/json");
+    });
     server.Get("/svgs", [](const httplib::Request &req, httplib::Response &res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         static const char query[]
@@ -217,6 +241,7 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
         }
         res.set_content(doc.dump(), "application/json");
     });
+
     server.Get("/snippets", [](const httplib::Request &req, httplib::Response &res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         auto t = req.get_param_value("t");
