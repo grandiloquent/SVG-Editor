@@ -183,11 +183,21 @@ async function snippet(textarea) {
 function commentLine(textarea) {
     const points = findExtendPosition(textarea);
     let s = textarea.value.substring(points[0], points[1]).trim();
-    if (s.startsWith("<!--") && s.endsWith("-->")) {
-        s = s.substring("<!--".length);
-        s = s.substring(0, s.length - "-->".length);
-    } else {
-        s = `<!--${s}-->`;
+    if (textarea.value[textarea.selectionStart] === '<') {
+        if (s.startsWith("<!--") && s.endsWith("-->")) {
+            s = s.substring("<!--".length);
+            s = s.substring(0, s.length - "-->".length);
+        } else {
+            s = `<!--${s}-->`;
+        }
+    }
+    else {
+        if (s.startsWith("/*") && s.endsWith("*/")) {
+            s = s.substring("/*".length);
+            s = s.substring(0, s.length - "*/".length);
+        } else {
+            s = `/*${s}*/`;
+        }
     }
     textarea.setRangeText(s, points[0], points[1]);
 }
