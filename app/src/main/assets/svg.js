@@ -494,14 +494,28 @@ async function functions(textarea) {
         console.log(error);
     }
 
+
     points = findExtendPosition(textarea);
     s = substringAfter(textarea.value.substring(points[0], points[1]).trim(), "\n");
+    let rvm = /(?<=const |var )[a-z][a-zA-Z0-9_]*(?=\S)/.exec(s);
+    let rv = (rvm && rvm[0]) || "v"
+
+    let vvm = [...new Set([...s.matchAll(/(?<= )[a-z][a-zA-Z0-9_]*(?=[\),])/g)].map(x => x[0]))]
+    let vsm = [...new Set([...s.matchAll(/(?<=const |var )[a-z][a-zA-Z0-9_]*(?=\S)/g)].map(x => x[0]))]
+    let array = [];
+    for (let i = 0; i < vvm.length; i++) {
+        if (vsm.indexOf(vvm[i]) === -1) {
+            array.push(vvm[i]);
+        }
+    }
+    vvm = array;
+
     let ssPoints = getBlockString(textarea);
-    textarea.setRangeText(`const v = ${name}();`, points[0], points[1]);
+    textarea.setRangeText(`const ${rv} = ${name}(${vvm.join(", ")});`, points[0], points[1]);
     let selectionStart = ssPoints[0];
-    s = `function ${name}(){
+    s = `function ${name}(${vvm.join(", ")}){
 ${s}
-return v;
+return ${rv};
 }
 `
     textarea.setRangeText(s, selectionStart, selectionStart);
