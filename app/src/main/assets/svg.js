@@ -481,26 +481,26 @@ async function functions(textarea) {
         t = 'en'
     }
     let name = "f";
-    try {
-        const response = await fetch(`${baseUri}/trans?to=${t}&q=${encodeURIComponent(s)}`);
-        if (response.status > 399 || response.status < 200) {
-            throw new Error(`${response.status}: ${response.statusText}`)
-        }
-        const results = await response.json();
-        const trans = results.sentences.map(x => x.trans);
-        name = camel(trans.join(' '));
+    // try {
+    //     const response = await fetch(`${baseUri}/trans?to=${t}&q=${encodeURIComponent(s)}`);
+    //     if (response.status > 399 || response.status < 200) {
+    //         throw new Error(`${response.status}: ${response.statusText}`)
+    //     }
+    //     const results = await response.json();
+    //     const trans = results.sentences.map(x => x.trans);
+    //     name = camel(trans.join(' '));
 
-    } catch (error) {
-        console.log(error);
-    }
+    // } catch (error) {
+    //     console.log(error);
+    // }
 
 
     points = findExtendPosition(textarea);
     s = substringAfter(textarea.value.substring(points[0], points[1]).trim(), "\n");
-    let rvm = /(?<=const |var )[a-z][a-zA-Z0-9_]*(?=\S)/.exec(s);
+    let rvm = /(?<=const |var )[a-z][a-zA-Z0-9_]*?(?= )/.exec(s);
     let rv = (rvm && rvm[0]) || "v"
 
-    let vvm = [...new Set([...s.matchAll(/(?<= )[a-z][a-zA-Z0-9_]*(?=[\),])/g)].map(x => x[0]))]
+    let vvm = [...new Set([...s.matchAll(/(?<=[ \(])[a-z][a-zA-Z0-9_]*(?=[\),])/g)].map(x => x[0]))]
     let vsm = [...new Set([...s.matchAll(/(?<=const |var )[a-z][a-zA-Z0-9_]*(?=\S)/g)].map(x => x[0]))]
     let array = [];
     for (let i = 0; i < vvm.length; i++) {
