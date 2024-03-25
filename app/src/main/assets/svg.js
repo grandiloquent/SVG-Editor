@@ -502,7 +502,9 @@ async function functions(textarea) {
 
     let vvm = [...new Set([...s.matchAll(/(?<=[ \(])[a-z][a-zA-Z0-9_]*(?=[\),])/g)].map(x => x[0]))]
     let vsm = [...new Set([...s.matchAll(/(?<=const |var )[a-z][a-zA-Z0-9_]*(?=\S)/g)].map(x => x[0]))]
+    vsm.push(...["true", "false"])
     let array = [];
+    console.log(vvm,vsm);
     for (let i = 0; i < vvm.length; i++) {
         if (vsm.indexOf(vvm[i]) === -1) {
             array.push(vvm[i]);
