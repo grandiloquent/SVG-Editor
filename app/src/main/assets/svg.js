@@ -167,33 +167,40 @@ async function snippet(textarea) {
         let end = substringAfterLast(word, ".");
         if (end === 'n') {
             textarea.setRangeText(`if(${start}!==0){
-                }else{
                 }`, points[0], points[1]);
             return;
         } else if (end === 'g') {
             textarea.setRangeText(`if(${start} > 0){
-                }else{
                 }`, points[0], points[1]);
             return;
         } else if (end === 'l') {
             textarea.setRangeText(`if(${start} < 0){
-                }else{
                 }`, points[0], points[1]);
             return;
         } else if (end === 'e') {
             textarea.setRangeText(`if(${start} === 0){
-                }else{
                 }`, points[0], points[1]);
             return;
-        }else if (end === 't') {
+        } else if (end === 't') {
             textarea.setRangeText(`if(${start}){
-                }else{
                 }`, points[0], points[1]);
             return;
-        }else if (end === 'f') {
+        } else if (end === 'f') {
             textarea.setRangeText(`if(!${start} ){
-                }else{
+                ${start}=true;
                 }`, points[0], points[1]);
+            return;
+        } else if (end === 'for') {
+            textarea.setRangeText(`for (let i = 0; i < ${start}.length; i++) {
+                const element = ${start}[i];
+            }`, points[0], points[1]);
+            return;
+        } else if (end === 'forj') {
+            textarea.setRangeText(`for (let i = 0; i < ${start}.length; i++) {
+                for (let j = 0; j < ${start}.length; j++) {
+                const element = ${start}[i][]
+                }
+            }`, points[0], points[1]);
             return;
         } else {
             textarea.setRangeText(`let ${start} = 0;`, points[0], points[1]);
@@ -204,6 +211,8 @@ async function snippet(textarea) {
     if (res.status === 200) {
         textarea.setRangeText(await res.text(), points[0], points[1]);
     }
+
+
 }
 function commentLine(textarea) {
     const points = findExtendPosition(textarea);
@@ -640,7 +649,7 @@ function copyLine(textarea) {
         textarea.setRangeText(str, end + 1, end + 1);
         return
     }
-    let points = findExtendPosition(textarea);
+    let points = getLine(textarea);
     let s = textarea.value.substring(points[0], points[1]).trim();
 
 
