@@ -494,18 +494,42 @@ function getBlockString() {
     let selectionEnd = textarea.selectionEnd;
     while (selectionEnd < textarea.value.length) {
         if (textarea.value[selectionEnd] === '}') {
-            if (count == 0)
+            if (count == 0) {
+                count--;
                 break;
+            }
             else count--;
         } else if (textarea.value[selectionEnd] === '{') {
             count++;
         }
         selectionEnd++;
     }
+
     return [selectionStart, selectionEnd];
 
 }
+function getBlock() {
+    let selectionStart = textarea.selectionStart;
+    let count = 0;
 
+    while (selectionStart - 1 > -1 && textarea.value[selectionStart] !== '\n') {
+        selectionStart--;
+    }
+    let selectionEnd = textarea.selectionEnd;
+    while (selectionEnd < textarea.value.length) {
+        if (textarea.value[selectionEnd] === '}') {
+            count--;
+            if (count == 0)
+                break;
+        } else if (textarea.value[selectionEnd] === '{') {
+            count++;
+        }
+        selectionEnd++;
+    }
+
+    return [selectionStart, selectionEnd];
+
+}
 async function functions(textarea) {
 
     let points = getWord(textarea);
@@ -538,7 +562,6 @@ async function functions(textarea) {
     let vsm = [...new Set([...s.matchAll(/(?<=const |var )[a-z][a-zA-Z0-9_]*(?=\S)/g)].map(x => x[0]))]
     vsm.push(...["true", "false"])
     let array = [];
-    console.log(vvm, vsm);
     for (let i = 0; i < vvm.length; i++) {
         if (vsm.indexOf(vvm[i]) === -1) {
             array.push(vvm[i]);
@@ -624,10 +647,18 @@ async function translate(textarea) {
 
 }
 function deleteLine(textarea) {
-    const points = getLine(textarea);
-    let s = textarea.value.substring(points[0], points[1]).trim();
-    writeText(s);
-    textarea.setRangeText("", points[0], points[1]);
+    if (textarea.value[textarea.selectionStart] === '{') {
+        const points = getBlock(textarea);
+        let s = textarea.value.substring(points[0], points[1]).trim();
+        writeText(s);
+        textarea.setRangeText("", points[0], points[1]);
+    } else {
+        const points = getLine(textarea);
+        let s = textarea.value.substring(points[0], points[1]).trim();
+        writeText(s);
+        textarea.setRangeText("", points[0], points[1]);
+    }
+
 }
 function copyLine(textarea) {
     if (textarea.value[textarea.selectionStart] === "<") {
