@@ -163,10 +163,35 @@ async function snippet(textarea) {
     let word = textarea.value.substring(points[0], points[1]);
 
     if (word.indexOf('.') !== -1) {
-        let start = substringBefore(word, ".");
-        let end = substringAfter(word, ".");
-        if (end === 'not') {
+        let start = substringBeforeLast(word, ".");
+        let end = substringAfterLast(word, ".");
+        if (end === 'n') {
             textarea.setRangeText(`if(${start}!==0){
+                }else{
+                }`, points[0], points[1]);
+            return;
+        } else if (end === 'g') {
+            textarea.setRangeText(`if(${start} > 0){
+                }else{
+                }`, points[0], points[1]);
+            return;
+        } else if (end === 'l') {
+            textarea.setRangeText(`if(${start} < 0){
+                }else{
+                }`, points[0], points[1]);
+            return;
+        } else if (end === 'e') {
+            textarea.setRangeText(`if(${start} === 0){
+                }else{
+                }`, points[0], points[1]);
+            return;
+        }else if (end === 't') {
+            textarea.setRangeText(`if(${start}){
+                }else{
+                }`, points[0], points[1]);
+            return;
+        }else if (end === 'f') {
+            textarea.setRangeText(`if(!${start} ){
                 }else{
                 }`, points[0], points[1]);
             return;
@@ -504,7 +529,7 @@ async function functions(textarea) {
     let vsm = [...new Set([...s.matchAll(/(?<=const |var )[a-z][a-zA-Z0-9_]*(?=\S)/g)].map(x => x[0]))]
     vsm.push(...["true", "false"])
     let array = [];
-    console.log(vvm,vsm);
+    console.log(vvm, vsm);
     for (let i = 0; i < vvm.length; i++) {
         if (vsm.indexOf(vvm[i]) === -1) {
             array.push(vvm[i]);
