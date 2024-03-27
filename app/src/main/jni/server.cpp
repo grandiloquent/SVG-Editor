@@ -107,6 +107,23 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
 	PRIMARY KEY("id" AUTOINCREMENT)
 ))";
     db::query<table1>();
+
+    static const char table2[]
+            = R"(CREATE TABLE IF NOT EXISTS "tag" (
+	"id"	INTEGER,
+	"name" TEXT NOT NULL UNIQUE,
+	PRIMARY KEY("id" AUTOINCREMENT)
+))";
+    db::query<table2>();
+    static const char table3[]
+            = R"(CREATE TABLE IF NOT EXISTS "svg_tag" (
+	"id"	INTEGER,
+	"svg_id"	INTEGER,
+	"tag_id"	INTEGER,
+	PRIMARY KEY("id" AUTOINCREMENT)
+))";
+    db::query<table3>();
+
     AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
     std::map<std::string, std::string> t{};
     std::string d{"application/octet-stream"};
