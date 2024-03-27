@@ -533,5 +533,53 @@ in vec4 a_position;
         auto s = Trans(q, to);
         res.set_content(s, "application/json");
     });
+    server.Post("/svgtag", [](const httplib::Request &req, httplib::Response &res,
+                              const httplib::ContentReader &content_reader) {
+        res.set_header("Access-Control-Allow-Origin", "*");
+
+        std::string body;
+        content_reader([&](const char *data, size_t data_length) {
+            body.append(data, data_length);
+            return true;
+        });
+        nlohmann::json doc = nlohmann::json::parse(body);
+
+        int id = 0;
+        if (doc.contains("id")) {
+            id = doc["id"];
+        }
+        if (id == 0) {
+            res.status = 404;
+            return;
+        }
+        std::vector<std::string> names = doc["names"];
+        if (names.empty()) {
+            res.status = 404;
+            return;
+        }
+        static const char query[]
+                = R"(delete from svg_tag where svg_id =?1)";
+        db::query<query>(id);
+        for (auto i: names) {
+            static const char q1[]
+                    = R"(select id from tag where name =?1)";
+            static const char q2[]
+                    = R"(insert into svg_tag(svg_id,tag_id) values(?1,?2))";
+
+            static const char q3[]
+                    = R"(insert into tag(name) values(?1))";
+            db::QueryResult fetch_row = db::query<q1>(i);
+            std::string tag_id;
+            if (!fetch_row(tag_id)) {
+                db::query<q3>(i);
+            }
+            fetch_row = db::query<q1>(i);
+            if (fetch_row(tag_id)) {
+                db::query<q2>(std::to_string(id), tag_id);
+            }
+        }
+
+
+    });
     server.listen(host, port);
 }
