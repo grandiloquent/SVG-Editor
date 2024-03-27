@@ -621,6 +621,10 @@ in vec4 a_position;
 //            static const char q1[]
 //                    = R"(delete FROM tag where id<>164)";
 //            db::query<q1>();
+
+//            static const char q1[]
+//                    = R"(delete FROM tag where name='')";
+//            db::query<q1>();
             static const char query[]
                     = R"(select name FROM tag JOIN svg_tag on tag.id = svg_tag.tag_id where svg_tag.svg_id=$1)";
             db::QueryResult fetch_row = db::query<query>(id);

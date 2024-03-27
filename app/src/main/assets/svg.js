@@ -716,7 +716,7 @@ async function updateTags() {
         if (rvv.length)
             div.value = rvv.join(',\n');
         else
-            div.value = "Babylon,\nThree,\nShader,\nSVG,\n项目,\n有问题,\n"
+            div.value = "Babylon,Three,Shader,SVG,项目,有问题,"
     } catch (error) {
         div.value = "Babylon,\nThree,\nShader,\nSVG,\n项目,\n"
     }
@@ -728,7 +728,7 @@ async function updateTags() {
         let nid = id ? parseInt(id, 10) : 0;
         let body = {
             id: nid,
-            names: [...new Set(s.split(',').map(x => x.trim()))]
+            names: [...new Set(s.split(',').map(x => x.trim()).filter(x=>x))]
         };
         let res;
         try {

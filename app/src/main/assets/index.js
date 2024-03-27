@@ -62,6 +62,10 @@ async function renderTags() {
         barContents.appendChild(div);
 
         div.addEventListener('click', evt => {
+            if (x === '全部') {
+                location.href =`?t=`;
+                return
+            }
             location.href = `?t=${x}`;
         })
     });
