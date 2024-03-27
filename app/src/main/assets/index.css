@@ -134,7 +134,7 @@ input:focus {
     flex-direction: column;
     font-size: 14px;
     line-height: 20px;
-    padding: 49px 16px;
+    padding: 98px 16px 49px;
 }
 
 .container>a {

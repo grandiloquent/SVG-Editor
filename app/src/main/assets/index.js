@@ -6,7 +6,8 @@ async function load() {
     // return res.json();
 
     const q = searchParams.get(`q`);
-    const uri = q ? `${baseUri}/search?q=${encodeURIComponent(q)}` : `${baseUri}/svgs`
+    const t = searchParams.get(`t`);
+    const uri = q ? `${baseUri}/search?q=${encodeURIComponent(q)}` : `${baseUri}/svgs?t=${t || ""}`
     const res = await fetch(uri, { cache: "no-store" });
     if (res.status !== 200) {
         throw new Error();
@@ -43,3 +44,26 @@ topbarMenuButton.addEventListener('click', evt => {
 topbarBackArrow.addEventListener('click', evt => {
     topbarHeader.classList.remove('search-on');
 });
+
+const barContents = document.querySelector('.bar-contents');
+
+
+async function loadTags() {
+    const res = await fetch(`${baseUri}/svgtags`);
+    return res.json();
+}
+async function renderTags() {
+    const data = await loadTags();
+    data.push("全部")
+    console.log(data);
+    data.forEach(x => {
+        const div = document.createElement('div');
+        div.textContent = x;
+        barContents.appendChild(div);
+
+        div.addEventListener('click', evt => {
+            location.href = `?t=${x}`;
+        })
+    });
+}
+renderTags();

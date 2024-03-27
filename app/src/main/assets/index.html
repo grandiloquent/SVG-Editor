@@ -60,6 +60,42 @@
             </div>
         </header>
     </div>
+    <style>
+        .bar-contents {
+            white-space: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            height: 48px
+        }
+
+        .bar-contents::-webkit-scrollbar {
+            display: none
+        }
+
+        .bar-contents {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .bar-contents>div {
+            min-width: 48px;
+            background-color: rgba(0, 0, 0, 0.05);
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .bar-contents>div:first-of-type{
+            margin-left: 16px;
+        }
+    </style>
+    <div
+        style="display: flex;position: fixed;top: 48px;left: 0;right: 0;border-bottom: 1px solid rgba(0, 0, 0, 0.1);border-top: 1px solid rgba(0, 0, 0, 0.1);">
+        <div class="bar-contents"></div>
+    </div>
     <div class="container"></div>
     <div class="bar-renderer">
         <a class="bar-item-tab" href="/svg.html">
