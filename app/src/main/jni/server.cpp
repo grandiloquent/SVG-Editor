@@ -581,5 +581,36 @@ in vec4 a_position;
 
 
     });
+    server.Get("/svgtags", [](const httplib::Request &req, httplib::Response &res) {
+        res.set_header("Access-Control-Allow-Origin", "*");
+        auto id = req.get_param_value("id");
+        if (id.empty()) {
+            static const char query[]
+                    = R"(select name FROM tag)";
+            db::QueryResult fetch_row = db::query<query>();
+            std::string_view name;
+            nlohmann::json doc = nlohmann::json::array();
+            while (fetch_row(name)) {
+                doc.push_back(name);
+            }
+            res.set_content(doc.dump(), "application/json");
+            return;
+        } else {
+//            static const char q1[]
+//                    = R"(delete FROM tag where id<>164)";
+//            db::query<q1>();
+            static const char query[]
+                    = R"(select name FROM tag JOIN svg_tag on tag.id = svg_tag.tag_id where svg_tag.svg_id=$1)";
+            db::QueryResult fetch_row = db::query<query>(id);
+            std::string_view name;
+            nlohmann::json doc = nlohmann::json::array();
+            while (fetch_row(name)) {
+                doc.push_back(name);
+            }
+            res.set_content(doc.dump(), "application/json");
+        }
+
+    });
+
     server.listen(host, port);
 }

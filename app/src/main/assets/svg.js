@@ -697,6 +697,57 @@ ${s.replace(/\b[a-zA-Z_]+[0-9]+\b/g, v => {
     textarea.setRangeText(str, selectionEnd, selectionEnd);
 
 }
+async function updateTags() {
+    const dialog = document.createElement('custom-dialog');
+    const div = document.createElement('textarea');
+    div.style = `
+    display: flex;
+    flex-direction: column;
+    row-gap: 4px;
+    font-size: 18px;
+    line-height: 24px;
+    align-items: stretch;
+    justify-content: center;
+`
+    try {
+        const rv = await fetch(`${baseUri}/svgtags?id=${id}`, { cache: "no-store" });
+        let rvv = await rv.json();
+
+        if (rvv.length)
+            div.value = rvv.join(',\n');
+        else
+            div.value = "Babylon,\nThree,\nShader,\nSVG,\n项目,\n"
+    } catch (error) {
+        div.value = "Babylon,\nThree,\nShader,\nSVG,\n项目,\n"
+    }
+
+    dialog.appendChild(div);
+
+    dialog.addEventListener('submit', async () => {
+        let s = div.value.trim();
+        let nid = id ? parseInt(id, 10) : 0;
+        let body = {
+            id: nid,
+            names: [...new Set(s.split(',').map(x => x.trim()))]
+        };
+        let res;
+        try {
+            res = await fetch(`${baseUri}/svgtag`, {
+                method: 'POST',
+                body: JSON.stringify(body)
+            });
+            if (res.status !== 200) {
+                throw new Error();
+            }
+            toast.setAttribute('message', '成功');
+        } catch (error) {
+            toast.setAttribute('message', '错误');
+        }
+    });
+    document.body.appendChild(dialog);
+
+
+}
 async function initializeToolbars() {
     let topIndexs;
     let bottomIndexs;
@@ -737,7 +788,7 @@ const items = [
         "save",
         "保存",
         async () => {
-            saveData();
+            updateTags()
         }
     ], [
         3,
@@ -857,6 +908,9 @@ document.addEventListener('keydown', async evt => {
             } else {
                 window.open(`${baseUri}/svgviewer?id=${id}`, '_blank');
             }
+        } else if (evt.key === 'F6') {
+            evt.preventDefault();
+            updateTags();
         }
     }
 
