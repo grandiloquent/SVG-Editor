@@ -112,7 +112,7 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
     std::string d{"application/octet-stream"};
     httplib::Server server;
     server.Get(
-            R"(/(.+\.(?:js|css|html|xhtml|ttf|png|jpg|jpeg|gif|json|svg|wasm|babylon|blend|glb))?)",
+            R"(/(.+\.(?:js|css|html|xhtml|ttf|png|jpg|jpeg|gif|json|svg|wasm|babylon|blend|glb|ogg))?)",
             [&t, mgr, &d](const httplib::Request &req,
                           httplib::Response &res) {
                 res.set_header("Access-Control-Allow-Origin", "*");
@@ -416,7 +416,12 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
   }
 </script>
 <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
-<script>
+<script type="module">
+
+//let baseUri = window.location.host === "127.0.0.1:5500" ? "http://192.168.8.55:8500" : "";
+
+
+
   var canvas = document.getElementById("renderCanvas");
 
   var startRenderLoop = function(engine, canvas) {
@@ -451,10 +456,12 @@ window.initFunction = async function() {
       }
     }
 
-    window.engine = await asyncEngineCreation();
+// window.
+    engine = await asyncEngineCreation();
     if (!engine) throw 'engine should not be null.';
     startRenderLoop(engine, canvas);
-    window.scene =await createScene();
+//   window.
+  scene =await createScene();
   };
   initFunction().then(() => {
     sceneToRender = scene
