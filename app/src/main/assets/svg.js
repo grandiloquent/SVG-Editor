@@ -512,15 +512,22 @@ function getBlock() {
     let selectionStart = textarea.selectionStart;
     let count = 0;
 
-    while (selectionStart - 1 > -1 && textarea.value[selectionStart] !== '\n') {
+    while (selectionStart - 1 > -1 && textarea.value[selectionStart - 1] !== '\n') {
         selectionStart--;
     }
     let selectionEnd = textarea.selectionEnd;
+
+    if (textarea.value[selectionEnd - 1] === '{') {
+        selectionEnd--
+    }
     while (selectionEnd < textarea.value.length) {
         if (textarea.value[selectionEnd] === '}') {
             count--;
-            if (count == 0)
+            if (count == 0) {
+                selectionEnd++;
                 break;
+            }
+
         } else if (textarea.value[selectionEnd] === '{') {
             count++;
         }
@@ -539,18 +546,18 @@ async function functions(textarea) {
         t = 'en'
     }
     let name = "f";
-    try {
-        const response = await fetch(`${baseUri}/trans?to=${t}&q=${encodeURIComponent(s)}`);
-        if (response.status > 399 || response.status < 200) {
-            throw new Error(`${response.status}: ${response.statusText}`)
-        }
-        const results = await response.json();
-        const trans = results.sentences.map(x => x.trans);
-        name = camel(trans.join(' '));
+    // try {
+    //     const response = await fetch(`${baseUri}/trans?to=${t}&q=${encodeURIComponent(s)}`);
+    //     if (response.status > 399 || response.status < 200) {
+    //         throw new Error(`${response.status}: ${response.statusText}`)
+    //     }
+    //     const results = await response.json();
+    //     const trans = results.sentences.map(x => x.trans);
+    //     name = camel(trans.join(' '));
 
-    } catch (error) {
-        console.log(error);
-    }
+    // } catch (error) {
+    //     console.log(error);
+    // }
 
 
     points = findExtendPosition(textarea);
@@ -558,9 +565,10 @@ async function functions(textarea) {
     let rvm = /(?<=const |var )[a-z][a-zA-Z0-9_]*?(?= )/.exec(s);
     let rv = (rvm && rvm[0]) || "v"
 
-    let vvm = [...new Set([...s.matchAll(/(?<=[ \(])[a-z][a-zA-Z0-9_]*(?=[\),])/g)].map(x => x[0]))]
-    let vsm = [...new Set([...s.matchAll(/(?<=const |var )[a-z][a-zA-Z0-9_]*(?=\S)/g)].map(x => x[0]))]
+    let vvm = [...new Set([...s.matchAll(/(?<=[ \(])[a-z][a-zA-Z0-9_]*(?=[\),.])/g)].map(x => x[0]))]
+    let vsm = [...new Set([...s.matchAll(/(?<=const |var )[a-z][a-zA-Z0-9_]*?(?= )/g)].map(x => x[0]))]
     vsm.push(...["true", "false"])
+
     let array = [];
     for (let i = 0; i < vvm.length; i++) {
         if (vsm.indexOf(vvm[i]) === -1) {
@@ -647,7 +655,7 @@ async function translate(textarea) {
 
 }
 function deleteLine(textarea) {
-    if (textarea.value[textarea.selectionStart] === '{') {
+    if (textarea.value[textarea.selectionStart] === '{' || textarea.value[textarea.selectionStart - 1] === '{') {
         const points = getBlock(textarea);
         let s = textarea.value.substring(points[0], points[1]).trim();
         writeText(s);
