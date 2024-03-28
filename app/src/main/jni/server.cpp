@@ -246,7 +246,8 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
         auto t = req.get_param_value("t");
         if (t.empty()) {
             static const char query[]
-                    = R"(SELECT id,title,update_at FROM svg ORDER BY update_at DESC limit 500)";
+            // SELECT id,title,update_at FROM svg ORDER BY update_at DESC limit 500
+                    = R"(select id,title,update_at from svg where id not in (select svg_id from svg_tag))";
             db::QueryResult fetch_row = db::query<query>();
             std::string_view id, title, update_at;
 

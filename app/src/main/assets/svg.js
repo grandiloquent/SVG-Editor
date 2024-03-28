@@ -697,6 +697,10 @@ ${s.replace(/\b[a-zA-Z_]+[0-9]+\b/g, v => {
     textarea.setRangeText(str, selectionEnd, selectionEnd);
 
 }
+async function loadTags() {
+    const res = await fetch(`${baseUri}/svgtags`);
+    return res.json();
+}
 async function updateTags() {
     const dialog = document.createElement('custom-dialog');
     const div = document.createElement('textarea');
@@ -716,7 +720,7 @@ async function updateTags() {
         if (rvv.length)
             div.value = rvv.join(',\n');
         else
-            div.value = "Babylon,Three,Shader,SVG,项目,有问题,"
+            div.value = (await loadTags()).join(',');
     } catch (error) {
         div.value = "Babylon,\nThree,\nShader,\nSVG,\n项目,\n"
     }
@@ -728,7 +732,7 @@ async function updateTags() {
         let nid = id ? parseInt(id, 10) : 0;
         let body = {
             id: nid,
-            names: [...new Set(s.split(',').map(x => x.trim()).filter(x=>x))]
+            names: [...new Set(s.split(',').map(x => x.trim()).filter(x => x))]
         };
         let res;
         try {
