@@ -92,7 +92,7 @@ bool render_markdown(const char *raw, size_t raw_size, std::string &html) {
     };
 
     int ret = md_html(raw, raw_size, process_out, (void *) (&html),
-                      MD_FLAG_NOHTML, MD_HTML_FLAG_SKIP_UTF8_BOM);
+                      MD_FLAG_TABLES , MD_HTML_FLAG_SKIP_UTF8_BOM);
     if (ret != 0)
         return false;
 
@@ -552,9 +552,18 @@ in vec4 a_position;
 
                 std::string data;
 
-                render_markdown(content.data(), content.size(),data);
-                res.set_content(data, "text/html");
-                return ;
+                render_markdown(content.data(), content.size(), data);
+
+                ss << R"(<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>)" << title << R"(</title>
+</head>
+<body>)" << data << R"(</body>
+</html>)";
             } else {
                 ss << R"(<!DOCTYPE html>
 <html lang="en">
