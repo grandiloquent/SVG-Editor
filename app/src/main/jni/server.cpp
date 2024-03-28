@@ -92,7 +92,7 @@ bool render_markdown(const char *raw, size_t raw_size, std::string &html) {
     };
 
     int ret = md_html(raw, raw_size, process_out, (void *) (&html),
-                      MD_FLAG_TABLES , MD_HTML_FLAG_SKIP_UTF8_BOM);
+                      MD_FLAG_TABLES | MD_FLAG_PERMISSIVEAUTOLINKS, MD_HTML_FLAG_SKIP_UTF8_BOM);
     if (ret != 0)
         return false;
 
