@@ -546,18 +546,18 @@ async function functions(textarea) {
         t = 'en'
     }
     let name = "f";
-    // try {
-    //     const response = await fetch(`${baseUri}/trans?to=${t}&q=${encodeURIComponent(s)}`);
-    //     if (response.status > 399 || response.status < 200) {
-    //         throw new Error(`${response.status}: ${response.statusText}`)
-    //     }
-    //     const results = await response.json();
-    //     const trans = results.sentences.map(x => x.trans);
-    //     name = camel(trans.join(' '));
+    try {
+        const response = await fetch(`${baseUri}/trans?to=${t}&q=${encodeURIComponent(s)}`);
+        if (response.status > 399 || response.status < 200) {
+            throw new Error(`${response.status}: ${response.statusText}`)
+        }
+        const results = await response.json();
+        const trans = results.sentences.map(x => x.trans);
+        name = camel(trans.join(' '));
 
-    // } catch (error) {
-    //     console.log(error);
-    // }
+    } catch (error) {
+        console.log(error);
+    }
 
 
     points = findExtendPosition(textarea);
