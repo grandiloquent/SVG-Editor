@@ -718,7 +718,7 @@ async function updateTags() {
         let rvv = await rv.json();
 
         if (rvv.length)
-            div.value = rvv.join(',\n');
+            div.value = rvv.join(',');
         else
             div.value = (await loadTags()).join(',');
     } catch (error) {
