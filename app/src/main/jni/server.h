@@ -3,6 +3,7 @@
 
 #include "shared.h"
 #include "httplib.h"
+#include "md4c-html.h"
 #include <nlohmann/json.hpp>
 #include <regex>
 #include <stdio.h>

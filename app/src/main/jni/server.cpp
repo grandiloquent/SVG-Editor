@@ -85,6 +85,20 @@ std::filesystem::path FindFile(const httplib::Request &req) {
     };
 }
 
+bool render_markdown(const char *raw, size_t raw_size, std::string &html) {
+    auto process_out = +[](const MD_CHAR *text, MD_SIZE size, void *user) {
+        std::string *out = (std::string *) user;
+        out->append(text, size);
+    };
+
+    int ret = md_html(raw, raw_size, process_out, (void *) (&html),
+                      MD_FLAG_NOHTML, MD_HTML_FLAG_SKIP_UTF8_BOM);
+    if (ret != 0)
+        return false;
+
+    return true;
+}
+
 void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int port) {
     static const char table[]
             = R"(CREATE TABLE IF NOT EXISTS "svg" (
@@ -246,7 +260,7 @@ void StartServer(JNIEnv *env, jobject assetManager, const std::string &host, int
         auto t = req.get_param_value("t");
         if (t.empty()) {
             static const char query[]
-            // SELECT id,title,update_at FROM svg ORDER BY update_at DESC limit 500
+                    // SELECT id,title,update_at FROM svg ORDER BY update_at DESC limit 500
                     = R"(select id,title,update_at from svg where id not in (select svg_id from svg_tag))";
             db::QueryResult fetch_row = db::query<query>();
             std::string_view id, title, update_at;
@@ -532,6 +546,15 @@ in vec4 a_position;
      }
      </script>
 )" << content << R"(</body></html>)";
+            } else if (content.find("</svg>") == std::string::npos &&
+                       content.find("</script>") == std::string::npos &&
+                       content.find("</style>") == std::string::npos) {
+
+                std::string data;
+
+                render_markdown(content.data(), content.size(),data);
+                res.set_content(data, "text/html");
+                return ;
             } else {
                 ss << R"(<!DOCTYPE html>
 <html lang="en">
