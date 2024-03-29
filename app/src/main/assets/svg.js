@@ -73,6 +73,16 @@ ${body["content"]}`;
 }
 
 function formatCode() {
+    let points = getLine(textarea);
+    let line = textarea.value.substring(points[0], points[1]).trim();
+    if (line.startsWith("- http://") || line.startsWith("- https://")) {
+        const uri = substringAfter(line, ' ');
+        if (typeof NativeAndroid !== 'undefined') {
+            const s = NativeAndroid.getTitle(uri);
+            textarea.setRangeText(`- [${s}](${uri})`, points[0], points[1]);
+        }
+        return
+    }
     const options = { indent_size: 2 }
     if (textarea.value.indexOf("const createScene = ") !== -1) {
         textarea.value = js_beautify(textarea.value, options);

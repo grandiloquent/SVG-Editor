@@ -117,6 +117,7 @@ public class WebAppInterface {
             mContext.startActivity(launchIntent);//null pointer check in case package name was not found
         }
     }
+
     @JavascriptInterface
     public void launchApp(String text, String uri) {
         Intent intent = new Intent(Intent.ACTION_MAIN);
@@ -132,6 +133,7 @@ public class WebAppInterface {
         mContext.startActivity(intent);//null pointer check in case package name was not found
 
     }
+
     @JavascriptInterface
     public String listAllPackages() {
         // get list of all the apps installed
@@ -244,6 +246,30 @@ public class WebAppInterface {
         Intent launchIntent = pm.getLaunchIntentForPackage("com.android.chrome");
         launchIntent.setData(Uri.parse("http://" + Shared.getDeviceIP(context) + ":8500" + path));
         context.startActivity(launchIntent);
+    }
+
+
+    @JavascriptInterface
+    public String getTitle(String uri) {
+        final StringBuilder sb = new StringBuilder();
+        try {
+            Thread thread = new Thread(() -> {
+                try {
+                    HttpURLConnection h = (HttpURLConnection) new URL(uri).openConnection();
+                    h.addRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36 Edg/88.0.705.74");
+                    String s = Shared.readString(h);
+                    s = Shared.substringAfter(s, "<title>");
+                    s = Shared.substringBefore(s, "</title>");
+                    sb.append(s);
+                } catch (Exception e) {
+                }
+            });
+            thread.start();
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
     }
 
 }
