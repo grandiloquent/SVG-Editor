@@ -75,7 +75,13 @@ ${body["content"]}`;
 function formatCode() {
     let points = getLine(textarea);
     let line = textarea.value.substring(points[0], points[1]).trim();
-    if (line.startsWith("- http://") || line.startsWith("- https://")) {
+
+    if (!line) {
+        textarea.value = textarea.value.split('\n').
+            filter(x => x.trim())
+            .join('\n');
+        return
+    } else if (line.startsWith("- http://") || line.startsWith("- https://")) {
         const uri = substringAfter(line, ' ');
         if (typeof NativeAndroid !== 'undefined') {
             const s = NativeAndroid.getTitle(uri);
