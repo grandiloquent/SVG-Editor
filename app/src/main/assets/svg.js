@@ -578,11 +578,11 @@ async function functions(textarea) {
 
     points = findExtendPosition(textarea);
     s = substringAfter(textarea.value.substring(points[0], points[1]).trim(), "\n");
-    let rvm = /(?<=const |var )[a-z][a-zA-Z0-9_]*?(?= )/.exec(s);
+    let rvm = /(?<=const |var |let )[a-z][a-zA-Z0-9_]*?(?= )/.exec(s);
     let rv = (rvm && rvm[0]) || "v"
 
     let vvm = [...new Set([...s.matchAll(/(?<=[ \(])[a-z][a-zA-Z0-9_]*(?=[\),.])/g)].map(x => x[0]))]
-    let vsm = [...new Set([...s.matchAll(/(?<=const |var )[a-z][a-zA-Z0-9_]*?(?= )/g)].map(x => x[0]))]
+    let vsm = [...new Set([...s.matchAll(/(?<=const |var |let )[a-z][a-zA-Z0-9_]*?(?= )/g)].map(x => x[0]))]
     vsm.push(...["true", "false"])
 
     let array = [];
