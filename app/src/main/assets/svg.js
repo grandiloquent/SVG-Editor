@@ -936,7 +936,13 @@ document.addEventListener('keydown', async evt => {
             } else {
                 window.open(`${baseUri}/svgviewer?id=${id}`, '_blank');
             }
-        } else if (evt.key === 'F6') {
+        } else if (evt.key === 'F5') {
+            evt.preventDefault();
+            formatCode()
+        }else if (evt.key === 'F6') {
+            evt.preventDefault();
+            functions(textarea);
+        }else if (evt.key === 'F7') {
             evt.preventDefault();
             updateTags();
         }
