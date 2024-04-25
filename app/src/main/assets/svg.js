@@ -791,8 +791,8 @@ async function initializeToolbars() {
             bottomIndexs = results[1];
         }
     } catch (error) {
-        topIndexs = [1, 6, 7, 8, 4, 11, 12]
-        bottomIndexs = [2, 3, 5, 9, 10, 13, 14]
+        topIndexs = [2, 6, 7, 8, 4, 11, 12]
+        bottomIndexs = [1, 3, 5, 9, 10, 13, 14]
     }
     insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
     insertItem(bottomIndexs, '.bar-renderer.bottom', 'bar-item-tab');
