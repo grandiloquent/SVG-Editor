@@ -171,7 +171,7 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(0, 1, 0, "刷新");
         menu.add(0, 2, 0, "首页");
-
+        menu.add(0, 3, 0, "复制");
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -184,7 +184,9 @@ public class MainActivity extends Activity {
             case 2:
                 mWebView.loadUrl(getAddress(this));
                 break;
-
+            case 3:
+                Shared.setText(this,mWebView.getUrl());
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
