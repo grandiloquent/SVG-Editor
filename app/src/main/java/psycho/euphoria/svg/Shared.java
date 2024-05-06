@@ -267,7 +267,8 @@ public class Shared {
     }
 
     public static String getDeviceIP(Context context) {
-        WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        return "0.0.0.0";
+        /*WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         try {
             WifiInfo wifiInfo = wifiManager.getConnectionInfo();
             int rawIp = wifiInfo.getIpAddress();
@@ -285,7 +286,7 @@ public class Shared {
             return inetAddress.getHostAddress();
         } catch (Exception e) {
             return "0.0.0.0";
-        }
+        }*/
     }
 
     public static String getExternalStoragePath(Context context) {
