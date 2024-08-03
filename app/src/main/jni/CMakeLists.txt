@@ -17,7 +17,10 @@ add_library(shared SHARED shared.cpp)
 target_link_libraries(shared android log)
 
 add_library(server SHARED server.cpp entity.c md4c.c md4c-html.c)
-target_link_libraries(server httplib shared android sqlite3 nlohmann_json::nlohmann_json)
+add_subdirectory(zipper)
+#target_include_directories(server PUBLIC zipper/zipper)
+target_link_libraries(server httplib shared android sqlite3 nlohmann_json::nlohmann_json Zipper)
+
 
 target_link_libraries(nativelib
         android

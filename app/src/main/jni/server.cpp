@@ -670,6 +670,67 @@ in vec4 a_position;
         }
 
     });
-
+    server.Post("/picture", [&](const auto &req, auto &res) {
+        res.set_header("Access-Control-Allow-Origin", "*");
+        // auto size = req.files.size();
+        // auto ret = req.has_file("images");
+        const auto &image_file = req.get_file_value("images");
+        auto id = req.has_param("id") ? req.get_param_value("id") : "1";
+        auto dir = "/storage/emulated/0/.editor/images/" + id;
+        if (!fs::is_directory(dir))
+            fs::create_directory(dir);
+        std::string image{dir};
+        image.append("/");
+        image.append(image_file.filename.c_str());
+        int count = 1;
+        while (fs::exists(image)) {
+            image = dir;
+            image.append("/");
+            image.append(std::to_string(count));
+            image.append(".");
+            image.append(SubstringAfterLast(image_file.filename, "."));
+            count++;
+        }
+        std::ofstream ofs(image, std::ios::binary);
+        ofs << image_file.content;
+        res.set_content(SubstringAfterLast(image, "images/"), "text/plain");
+    });
+    server.Get("/zip", [](const httplib::Request &req, httplib::Response &res) {
+        std::vector<unsigned char> zip_vect;
+        zipper::Zipper zipper(zip_vect);
+        auto id = req.has_param("id") ? req.get_param_value("id") : "1";
+        auto dir = "/storage/emulated/0/.editor/images/" + id;
+//        if (is_directory(path)) {
+//            Zipper zipper(path.parent_path().string() + "/" +
+//                          path.filename().string() + ".epub");
+        auto length = dir.length() + 1;
+        for (const fs::directory_entry &dir_entry:
+                fs::recursive_directory_iterator(dir)) {
+            if (dir_entry.is_regular_file()) {
+                std::ifstream input(dir_entry.path());
+                zipper.add(input, dir_entry.path().string().substr(length));
+            }
+        }
+        zipper.close();
+//        }
+        //        std::vector<unsigned char> zip_vect;
+        //        Zipper zipper(zip_vect);
+        //        for (const fs::directory_entry &dir_entry:
+        //                fs::recursive_directory_iterator(path)) {
+        //            if (dir_entry.is_regular_file()) {
+        //                std::ifstream input(dir_entry.path());
+        //                zipper.add(input,
+        //                dir_entry.path().string().substr(path.length() + 1));
+        //            }
+        //
+        //        }
+        std::string value{"attachment; filename=\""};
+        value.append(SubstringAfterLast(dir, "/"));
+        value.append("\"");
+        res.set_header("Content-Disposition", value);
+        res.set_content(reinterpret_cast<char *>(zip_vect.data()),
+                        zip_vect.size(),
+                        "application/zip");
+    });
     server.listen(host, port);
 }
