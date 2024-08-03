@@ -154,7 +154,7 @@ items.push([
     "download",
     "下载",
     async () => {
-        await downloadFile(baseUri);
+        await download(baseUri);
     }
 ])
 document.addEventListener('keydown', async evt => {

@@ -73,7 +73,7 @@ function upload(baseUri) {
         });
         input.click();
     }
-} 
+}
 function upload(baseUri) {
     if (window.location.protocol === 'https:' || window.location.protocol === 'http:') {
         tryUploadImageFromClipboard(baseUri, (ok) => {
@@ -873,4 +873,7 @@ async function updateTags() {
     document.body.appendChild(dialog);
 
 
+}
+async function download(baseUri) {
+    fetch(`${baseUri}/download?id=${id}`);
 }

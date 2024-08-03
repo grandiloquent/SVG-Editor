@@ -695,7 +695,7 @@ in vec4 a_position;
         ofs << image_file.content;
         res.set_content(SubstringAfterLast(image, "images/"), "text/plain");
     });
-    server.Get("/zip", [](const httplib::Request &req, httplib::Response &res) {
+    server.Get("/download", [](const httplib::Request &req, httplib::Response &res) {
         std::vector<unsigned char> zip_vect;
         zipper::Zipper zipper(zip_vect);
         auto id = req.has_param("id") ? req.get_param_value("id") : "1";
@@ -710,7 +710,20 @@ in vec4 a_position;
                 std::ifstream input(dir_entry.path());
                 zipper.add(input, dir_entry.path().string().substr(length));
             }
+
         }
+
+        static const char query[]
+                = R"(select title, content, create_at, update_at from svg WHERE id = ?1)";
+        db::QueryResult fetch_row = db::query<query>(id);
+        std::string_view title, content, create_at, update_at;
+
+        if (fetch_row(title, content, create_at, update_at)) {
+
+            std::istringstream is("# " + title + "\r\n" + content);
+            zipper.add(is, "1.md", zipper::Zipper::Faster);
+        }
+
         zipper.close();
 //        }
         //        std::vector<unsigned char> zip_vect;
