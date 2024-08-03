@@ -1,4 +1,6 @@
 #include "server.h"
+#include "format.h"
+#include "fmt/include/fmt/format.h"
 
 static const char db_name[] = "/storage/emulated/0/.editor/svg.db";
 using db = sqlite::Database<db_name>;
@@ -720,7 +722,7 @@ in vec4 a_position;
 
         if (fetch_row(title, content, create_at, update_at)) {
 
-            std::istringstream is("# " + title + "\r\n" + content);
+            std::istringstream is(fmt::format("# {}\r\n{}",title,content));
             zipper.add(is, "1.md", zipper::Zipper::Faster);
         }
 
