@@ -13,8 +13,8 @@ async function initializeToolbars() {
             bottomIndexs = results[1];
         }
     } catch (error) {
-        topIndexs = [1, 2, 6, 7, 8, 4, 11, 12]
-        bottomIndexs = [15, 16, 18, 19, 20, 13, 17]
+        topIndexs = [15, 16, 18, 22, 20, 21, 17]
+        bottomIndexs = [1, 20, 19, 7, 8, 4, 11, 12]
     }
     insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
     insertItem(bottomIndexs, '.bar-renderer.bottom', 'bar-item-tab');
@@ -181,8 +181,22 @@ items.push([
         await insertImage(baseUri);
     }
 ]);
-
-
+items.push([
+    21,
+    "clear",
+    "删除",
+    () => {
+        deleteBlock()
+    }
+]);
+items.push([
+    22,
+    "title",
+    "标题",
+      () => {
+        formatHead(textarea) 
+    }
+]);
 document.addEventListener('keydown', async evt => {
     if (evt.ctrlKey) {
         if (evt.key === 's') {

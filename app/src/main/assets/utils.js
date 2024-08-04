@@ -850,7 +850,8 @@ async function translateEnglish(textarea, language) {
     let points = findExtendPosition(textarea);
     let s = textarea.value.substring(points[0], points[1]).trim();
     s = s.replaceAll(/\[[^a-z]+\]/g, '').replaceAll(/[\r\n]+/g, ' ')
-        .replaceAll(/\s{2,}/g, ' ');
+        .replaceAll(/\s{2,}/g, ' ')
+        .replaceAll(/(?<=[a-zA-Z])- +/g, '');
     try {
         const response = await fetch(`${baseUri}/trans?to=${language ? language : "zh"}&q=${encodeURIComponent(s)}`);
         if (response.status > 399 || response.status < 200) {
@@ -859,7 +860,7 @@ async function translateEnglish(textarea, language) {
         const results = await response.json();
         let trans = results.sentences.map(x => x.trans);
         trans = trans.join(' ');
-        textarea.setRangeText(trans, points[1], points[1]);
+        textarea.setRangeText(`\r\n\r\n${trans}`, points[1], points[1]);
         writeText(trans)
     } catch (error) {
         console.log(error);
@@ -874,3 +875,29 @@ async function insertImage(baseUri) {
     textarea.setRangeText(string, textarea.selectionStart, textarea.selectionStart);
 
 }
+function deleteBlock() {
+    let points = findExtendPosition(textarea);
+    let q = textarea.value.substring(points[0], points[1]).trim();
+    textarea.setRangeText("",points[0], points[1]);
+    writeText(q);
+}
+
+function formatHead(textarea) {
+    const s = textarea.value;
+    let start = textarea.selectionStart;
+    while (start > 0 && s[start - 1] !== '\n') {
+        start--;
+    }
+    let length = textarea.value.length;
+    let end = textarea.selectionEnd;
+    while (end < length && s[end + 1] !== '\n') {
+        end++;
+    }
+    let str = textarea.value.slice(start, end + 1);
+    if (str.startsWith('#')) {
+        textarea.setRangeText(`#${str}`, start, end + 1);
+        return;
+    }
+    textarea.setRangeText(`## ${str}`, start, end + 1);
+}
+

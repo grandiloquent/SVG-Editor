@@ -116,6 +116,12 @@ std::string EncodeUrl(const std::string &s) {
             case ';':
                 result += "%3B";
                 break;
+            case '/':
+                result += "%2F";
+                break;
+            case '%':
+                result += "%25";
+                break;
             default:
                 auto c = static_cast<uint8_t>(s[i]);
                 if (c >= 0x80) {

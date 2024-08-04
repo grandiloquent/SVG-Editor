@@ -589,7 +589,8 @@ in vec4 a_position;
         res.set_header("Access-Control-Allow-Origin", "*");
         auto q = req.get_param_value("q");
         auto to = req.get_param_value("to");
-        auto s = Trans(q, to);
+        //LOGE("=========%s",EncodeUrl(q).c_str());
+        auto s =Trans(q, to);
         res.set_content(s, "application/json");
     });
     server.Post("/svgtag", [](const httplib::Request &req, httplib::Response &res,
@@ -768,7 +769,7 @@ in vec4 a_position;
                     {{"User-Agent",
                       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                       "(KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"}})) {
-                std::ofstream file(dir +"/"+ name, std::ios::binary);
+                std::ofstream file(dir + "/" + name, std::ios::binary);
                 file << res->body;
             }
         } else {
@@ -779,12 +780,12 @@ in vec4 a_position;
                       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                       "(KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"}})) {
 
-                std::ofstream file(dir+"/" + name, std::ios::binary);
+                std::ofstream file(dir + "/" + name, std::ios::binary);
                 file << res->body;
             }
         }
 
-        res.set_content(dir+"/" + name, "application/json");
+        res.set_content(dir + "/" + name, "application/json");
     });
 
 
