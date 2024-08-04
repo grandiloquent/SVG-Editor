@@ -14,7 +14,7 @@ async function initializeToolbars() {
         }
     } catch (error) {
         topIndexs = [1, 2, 6, 7, 8, 4, 11, 12]
-        bottomIndexs = [15, 16, 18, 19, 10, 13, 17]
+        bottomIndexs = [15, 16, 18, 19, 20, 13, 17]
     }
     insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
     insertItem(bottomIndexs, '.bar-renderer.bottom', 'bar-item-tab');
@@ -139,7 +139,7 @@ const items = [
         async () => {
             await saveData();
         }
-    ],[
+    ], [
         16,
         "image",
         "图片",
@@ -170,9 +170,18 @@ items.push([
     "translate",
     "翻译",
     async () => {
-        await translateEnglish(textarea,'en');
+        await translateEnglish(textarea, 'en');
     }
 ]);
+items.push([
+    20,
+    "image",
+    "插入",
+    async () => {
+        await insertImage(baseUri);
+    }
+]);
+
 
 document.addEventListener('keydown', async evt => {
     if (evt.ctrlKey) {

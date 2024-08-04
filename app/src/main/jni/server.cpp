@@ -2,6 +2,8 @@
 #include "format.h"
 #include "fmt/include/fmt/format.h"
 
+#define CPPHTTPLIB_OPENSSL_SUPPORT
+
 static const char db_name[] = "/storage/emulated/0/.editor/svg.db";
 using db = sqlite::Database<db_name>;
 
@@ -722,7 +724,7 @@ in vec4 a_position;
 
         if (fetch_row(title, content, create_at, update_at)) {
 
-            std::istringstream is(fmt::format("# {}\r\n\r\n{}",title,content));
+            std::istringstream is(fmt::format("# {}\r\n\r\n{}", title, content));
             zipper.add(is, "1.md", zipper::Zipper::Faster);
         }
 
@@ -747,5 +749,44 @@ in vec4 a_position;
                         zip_vect.size(),
                         "application/octet-stream");
     });
+    server.Get("/image", [](const httplib::Request &req, httplib::Response &res) {
+        res.set_header("Access-Control-Allow-Origin", "*");
+        auto q = req.get_param_value("q");
+        auto name = SubstringBeforeLast(q, "?");
+        name = SubstringAfterLast(name, "/");
+        auto host = Substring(q, "://", "/");
+        auto query = SubstringAfterLast(q, host);
+        auto id = req.has_param("id") ? req.get_param_value("id") : "1";
+        auto dir = "/storage/emulated/0/.editor/images/" + id;
+        if (!fs::is_directory(dir))
+            fs::create_directory(dir);
+        if (q.starts_with("https://")) {
+            httplib::SSLClient cli(host, 443);
+            cli.enable_server_certificate_verification(false);
+            if (auto res = cli.Get(
+                    query,
+                    {{"User-Agent",
+                      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                      "(KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"}})) {
+                std::ofstream file(dir +"/"+ name, std::ios::binary);
+                file << res->body;
+            }
+        } else {
+            httplib::Client cli(host, 80);
+            if (auto res = cli.Get(
+                    query,
+                    {{"User-Agent",
+                      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                      "(KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"}})) {
+
+                std::ofstream file(dir+"/" + name, std::ios::binary);
+                file << res->body;
+            }
+        }
+
+        res.set_content(dir+"/" + name, "application/json");
+    });
+
+
     server.listen(host, port);
 }

@@ -68,36 +68,7 @@ function upload(baseUri) {
         input.addEventListener('change', async ev => {
             const file = input.files[0];
             const imageFile = await uploadImage(file, file.name);
-            const string = `![](https://static.lucidu.cn/images/${imageFile})\n\n`;
-            textarea.setRangeText(string, textarea.selectionStart, textarea.selectionStart);
-        });
-        input.click();
-    }
-}
-function upload(baseUri) {
-    if (window.location.protocol === 'https:' || window.location.protocol === 'http:') {
-        tryUploadImageFromClipboard(baseUri, (ok) => {
-            const string = `![](/pictures/${ok})\n\n`;
-            textarea.setRangeText(string, textarea.selectionStart, textarea.selectionStart);
-        }, (error) => {
-            console.log(error);
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.addEventListener('change', async ev => {
-                const file = input.files[0];
-                const imageFile = await uploadImage(baseUri, file, file.name);
-                const string = `![](/images/${imageFile})\n\n`;
-                textarea.setRangeText(string, textarea.selectionStart, textarea.selectionStart);
-            });
-            input.click();
-        });
-    } else {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.addEventListener('change', async ev => {
-            const file = input.files[0];
-            const imageFile = await uploadImage(file, file.name);
-            const string = `![](/pictures/${imageFile})\n\n`;
+            const string = `![](/images/${imageFile})\n\n`;
             textarea.setRangeText(string, textarea.selectionStart, textarea.selectionStart);
         });
         input.click();
@@ -893,4 +864,13 @@ async function translateEnglish(textarea, language) {
     } catch (error) {
         console.log(error);
     }
+}
+async function insertImage(baseUri) {
+    let points = getLine(textarea);
+    let q = textarea.value.substring(points[0], points[1]).trim();
+    const res = await fetch(`${baseUri}/image?q=${encodeURIComponent(q)}&id=${id}`);
+    const imageFile = await res.text();
+    const string = `![](/images/${imageFile})\n\n`;
+    textarea.setRangeText(string, textarea.selectionStart, textarea.selectionStart);
+
 }
