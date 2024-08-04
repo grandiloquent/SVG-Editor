@@ -765,8 +765,6 @@ async function translate(textarea) {
     } catch (error) {
         console.log(error);
     }
-
-
 }
 function deleteLine(textarea) {
     if (textarea.value[textarea.selectionStart] === '{' || textarea.value[textarea.selectionStart - 1] === '{') {
@@ -875,5 +873,24 @@ async function updateTags() {
 
 }
 async function download(baseUri) {
-    fetch(`${baseUri}/download?id=${id}`);
+    window.open(`${baseUri}/download?id=${id}`, '_blank');
+}
+async function translateEnglish(textarea, language) {
+    let points = findExtendPosition(textarea);
+    let s = textarea.value.substring(points[0], points[1]).trim();
+    s = s.replaceAll(/\[[^a-z]+\]/g, '').replaceAll(/[\r\n]+/g, ' ')
+        .replaceAll(/\s{2,}/g, ' ');
+    try {
+        const response = await fetch(`${baseUri}/trans?to=${language ? language : "zh"}&q=${encodeURIComponent(s)}`);
+        if (response.status > 399 || response.status < 200) {
+            throw new Error(`${response.status}: ${response.statusText}`)
+        }
+        const results = await response.json();
+        let trans = results.sentences.map(x => x.trans);
+        trans = trans.join(' ');
+        textarea.setRangeText(trans, points[1], points[1]);
+        writeText(trans)
+    } catch (error) {
+        console.log(error);
+    }
 }

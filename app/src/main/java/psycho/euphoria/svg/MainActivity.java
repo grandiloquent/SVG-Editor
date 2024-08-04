@@ -4,7 +4,6 @@ import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.NotificationManager;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,6 +14,7 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.os.StrictMode;
 import android.provider.Settings;
 import android.util.Log;
@@ -23,9 +23,28 @@ import android.view.MenuItem;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+
+import com.tom_roush.pdfbox.android.PDFBoxResourceLoader;
+import com.tom_roush.pdfbox.cos.COSName;
+import com.tom_roush.pdfbox.pdmodel.PDDocument;
+import com.tom_roush.pdfbox.pdmodel.PDPage;
+import com.tom_roush.pdfbox.pdmodel.PDResources;
+import com.tom_roush.pdfbox.pdmodel.graphics.PDXObject;
+import com.tom_roush.pdfbox.pdmodel.graphics.form.PDFormXObject;
+import com.tom_roush.pdfbox.pdmodel.graphics.image.PDImageXObject;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+
+
 
 public class MainActivity extends Activity {
     public static final int DEFAULT_PORT = 8090;
@@ -172,6 +191,7 @@ public class MainActivity extends Activity {
         menu.add(0, 1, 0, "刷新");
         menu.add(0, 2, 0, "首页");
         menu.add(0, 3, 0, "复制");
+        menu.add(0, 4, 0, "PDF");
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -185,10 +205,55 @@ public class MainActivity extends Activity {
                 mWebView.loadUrl(getAddress(this));
                 break;
             case 3:
-                Shared.setText(this,mWebView.getUrl());
+                Shared.setText(this, mWebView.getUrl());
+                break;
+            case 4:
+                PDFBoxResourceLoader.init(getApplicationContext());
+                int start = 78;
+                try {
+                    start = Integer.parseInt(Shared.getText(this).toString());
+                } catch (Exception ignored) {
+                }
+                getAllImageFromFile("/storage/emulated/0/.editor/pdf/1.pdf", start, start + 1, "/storage/emulated/0/.editor/pdf");
+
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
+    public void getAllImageFromFile(String pathToFile, int start, int end, String dir) {
+        try (PDDocument document = PDDocument.load(new File(pathToFile))) {
+            int j = 1;
+            for (int i = start; i < Math.min(document.getNumberOfPages(), end); i++) {
+                PDPage page = document.getPage(i);
+                List<PDImageXObject> pageImages = getImagesFromResources(page.getResources());
+                for (PDImageXObject pageImage : pageImages) {
+                    try (FileOutputStream outputStream = new FileOutputStream(dir + "/" + (j++) + ".png")) {
+                        //Bitmap bitmap =
+                        //Bitmap bmp = new JP2Decoder(jp2data).decode();
+                        //b.compress(CompressFormat.PNG, 100, outputStream);
+                        //b.recycle();
+                        Shared.copyStreams(pageImage.createInputStream(),outputStream);
+                    }
+                }
+                //images.put(i, pageImages.isEmpty() ? new ArrayList<>() : pageImages);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Can't get images from file: " + e.toString());
+        }
+    }
+    private List<PDImageXObject> getImagesFromResources(PDResources resources) throws IOException {
+        List<PDImageXObject> images = new ArrayList<>();
+        for (COSName xObjectName : resources.getXObjectNames()) {
+            PDXObject xObject = resources.getXObject(xObjectName);
+            if (xObject instanceof PDFormXObject) {
+                images.addAll(getImagesFromResources(((PDFormXObject) xObject).getResources()));
+            } else if (xObject instanceof PDImageXObject) {
+                PDImageXObject image = ((PDImageXObject) xObject);
+                images.add(image);
+            }
+        }
+        return images;
+    }
+
 
 }

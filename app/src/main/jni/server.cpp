@@ -722,7 +722,7 @@ in vec4 a_position;
 
         if (fetch_row(title, content, create_at, update_at)) {
 
-            std::istringstream is(fmt::format("# {}\r\n{}",title,content));
+            std::istringstream is(fmt::format("# {}\r\n\r\n{}",title,content));
             zipper.add(is, "1.md", zipper::Zipper::Faster);
         }
 
@@ -741,11 +741,11 @@ in vec4 a_position;
         //        }
         std::string value{"attachment; filename=\""};
         value.append(SubstringAfterLast(dir, "/"));
-        value.append("\"");
+        value.append(".zip\"");
         res.set_header("Content-Disposition", value);
         res.set_content(reinterpret_cast<char *>(zip_vect.data()),
                         zip_vect.size(),
-                        "application/zip");
+                        "application/octet-stream");
     });
     server.listen(host, port);
 }
