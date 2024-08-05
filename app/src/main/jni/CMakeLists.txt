@@ -31,7 +31,7 @@ add_subdirectory(nlohmann_json)
 add_library(shared SHARED shared.cpp)
 target_link_libraries(shared android log)
 
-add_library(server SHARED server.cpp entity.c md4c.c md4c-html.c)
+add_library(server SHARED server.cpp server_utils.cpp entity.c md4c.c md4c-html.c)
 add_subdirectory(zipper)
 add_subdirectory(fmt)
 target_include_directories(server PUBLIC fmt/include/fmt)

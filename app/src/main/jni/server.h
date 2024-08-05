@@ -4,6 +4,7 @@
 #include "shared.h"
 #include "httplib.h"
 #include "md4c-html.h"
+#include "server_utils.h"
 #include <nlohmann/json.hpp>
 #include "zipper/zipper/zipper.h"
 #include <regex>

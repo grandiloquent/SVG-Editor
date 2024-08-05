@@ -590,7 +590,7 @@ in vec4 a_position;
         auto q = req.get_param_value("q");
         auto to = req.get_param_value("to");
         //LOGE("=========%s",EncodeUrl(q).c_str());
-        auto s =Trans(q, to);
+        auto s = Trans(q, to);
         res.set_content(s, "application/json");
     });
     server.Post("/svgtag", [](const httplib::Request &req, httplib::Response &res,
@@ -676,29 +676,7 @@ in vec4 a_position;
 
     });
     server.Post("/picture", [&](const auto &req, auto &res) {
-        res.set_header("Access-Control-Allow-Origin", "*");
-        // auto size = req.files.size();
-        // auto ret = req.has_file("images");
-        const auto &image_file = req.get_file_value("images");
-        auto id = req.has_param("id") ? req.get_param_value("id") : "1";
-        auto dir = "/storage/emulated/0/.editor/images/" + id;
-        if (!fs::is_directory(dir))
-            fs::create_directory(dir);
-        std::string image{dir};
-        image.append("/");
-        image.append(image_file.filename.c_str());
-        int count = 1;
-        while (fs::exists(image)) {
-            image = dir;
-            image.append("/");
-            image.append(std::to_string(count));
-            image.append(".");
-            image.append(SubstringAfterLast(image_file.filename, "."));
-            count++;
-        }
-        std::ofstream ofs(image, std::ios::binary);
-        ofs << image_file.content;
-        res.set_content(SubstringAfterLast(image, "images/"), "text/plain");
+        handleImagesUpload(req, res);
     });
     server.Get("/download", [](const httplib::Request &req, httplib::Response &res) {
         std::vector<unsigned char> zip_vect;
