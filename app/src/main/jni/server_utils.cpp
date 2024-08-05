@@ -7,22 +7,26 @@ std::string buildFileName(const std::string &dir, int index, const std::string &
     return ss.str();
 }
 
-void handleImagesUpload(const httplib::Request &req, httplib::Response &res) {
-    res.set_header("Access-Control-Allow-Origin", "*");
-    const auto &image_file = req.get_file_value("images");
-    auto id = req.has_param("id") ? req.get_param_value("id") : "1";
+std::string getUniqueFileName(const std::string &id, const std::string &originalFileName) {
     auto dir = "/storage/emulated/0/.editor/images/" + id;
     if (!fs::is_directory(dir))
         fs::create_directory(dir);
-    auto extension = SubstringAfterLast(image_file.filename, ".");
+    auto extension = SubstringAfterLast(originalFileName, ".");
     int count = 1;
     auto image = buildFileName(dir, count, extension);
-
     while (fs::exists(image)) {
         count++;
         image = buildFileName(dir, count, extension);
     }
-    std::ofstream ofs(image, std::ios::binary);
+    return image;
+}
+
+void handleImagesUpload(const httplib::Request &req, httplib::Response &res) {
+    res.set_header("Access-Control-Allow-Origin", "*");
+    const auto &image_file = req.get_file_value("images");
+    auto id = req.has_param("id") ? req.get_param_value("id") : "1";
+    auto imageFileName = getUniqueFileName(id, image_file.filename);
+    std::ofstream ofs(imageFileName, std::ios::binary);
     ofs << image_file.content;
-    res.set_content(SubstringAfterLast(image, "images/"), "text/plain");
+    res.set_content(SubstringAfterLast(imageFileName, "images/"), "text/plain");
 }
