@@ -269,14 +269,14 @@ render_attribute(MD_HTML* r, const MD_ATTRIBUTE* attr,
 static void
 render_open_ol_block(MD_HTML* r, const MD_BLOCK_OL_DETAIL* det)
 {
-    char buf[128];
+    char buf[64];
 
     if(det->start == 1) {
-        RENDER_VERBATIM(r, "<ol style=\"margin-left:0;padding-left:1em;color:#3f3f3f\">\n");
+        RENDER_VERBATIM(r, "<ol>\n");
         return;
     }
 
-    snprintf(buf, sizeof(buf), "<ol style=\"margin-left:0;padding-left:1em;color:#3f3f3f\" start=\"%u\">\n", det->start);
+    snprintf(buf, sizeof(buf), "<ol start=\"%u\">\n", det->start);
     RENDER_VERBATIM(r, buf);
 }
 
@@ -290,7 +290,7 @@ render_open_li_block(MD_HTML* r, const MD_BLOCK_LI_DETAIL* det)
             RENDER_VERBATIM(r, " checked");
         RENDER_VERBATIM(r, ">");
     } else {
-        RENDER_VERBATIM(r, "<li style=\"margin:0.2em 8px;\">");
+        RENDER_VERBATIM(r, "<li>");
     }
 }
 
@@ -340,7 +340,7 @@ render_open_a_span(MD_HTML* r, const MD_SPAN_A_DETAIL* det)
 static void
 render_open_img_span(MD_HTML* r, const MD_SPAN_IMG_DETAIL* det)
 {
-    RENDER_VERBATIM(r, "<img style=\"border-radius:4px;display:block;margin:0.1em auto 0.5em;max-width:100% !important\" src=\"");
+    RENDER_VERBATIM(r, "<img src=\"");
     render_attribute(r, &det->src, render_url_escaped);
 
     RENDER_VERBATIM(r, "\" alt=\"");
@@ -374,20 +374,20 @@ render_open_wikilink_span(MD_HTML* r, const MD_SPAN_WIKILINK_DETAIL* det)
 static int
 enter_block_callback(MD_BLOCKTYPE type, void* detail, void* userdata)
 {
-    static const MD_CHAR* head[6] = { "<h1>", "<h2 style=\"text-align:center;line-height:1.75;font-family:-apple-system-font,BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB , Microsoft YaHei UI , Microsoft YaHei ,Arial,sans-serif;font-size:16.8px;font-weight:bold;display:table;margin:4em auto 2em;padding:0 0.3em;background:rgba(15, 76, 129, 1);color:#fff;border-radius:4px\">", "<h3 style=\"text-align:center;line-height:1.75;font-family:-apple-system-font,BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB , Microsoft YaHei UI , Microsoft YaHei ,Arial,sans-serif;font-size:15.4px;font-weight:bold;display:table;margin:4em auto 2em;padding:0 0.3em;background:rgba(15, 76, 129, 1);color:#fff;border-radius:4px\">", "<h4>", "<h5>", "<h6>" };
+    static const MD_CHAR* head[6] = { "<h1>", "<h2>", "<h3>", "<h4>", "<h5>", "<h6>" };
     MD_HTML* r = (MD_HTML*) userdata;
 
     switch(type) {
         case MD_BLOCK_DOC:      /* noop */ break;
         case MD_BLOCK_QUOTE:    RENDER_VERBATIM(r, "<blockquote>\n"); break;
-        case MD_BLOCK_UL:       RENDER_VERBATIM(r, "<ul style=\"margin-left:0;padding-left:1em;list-style:circle;color:#3f3f3f\">\n"); break;
+        case MD_BLOCK_UL:       RENDER_VERBATIM(r, "<ul>\n"); break;
         case MD_BLOCK_OL:       render_open_ol_block(r, (const MD_BLOCK_OL_DETAIL*)detail); break;
         case MD_BLOCK_LI:       render_open_li_block(r, (const MD_BLOCK_LI_DETAIL*)detail); break;
         case MD_BLOCK_HR:       RENDER_VERBATIM(r, (r->flags & MD_HTML_FLAG_XHTML) ? "<hr />\n" : "<hr>\n"); break;
         case MD_BLOCK_H:        RENDER_VERBATIM(r, head[((MD_BLOCK_H_DETAIL*)detail)->level - 1]); break;
         case MD_BLOCK_CODE:     render_open_code_block(r, (const MD_BLOCK_CODE_DETAIL*) detail); break;
         case MD_BLOCK_HTML:     /* noop */ break;
-        case MD_BLOCK_P:        RENDER_VERBATIM(r,"<p style=\"text-align:left;line-height:1.75;font-family:-apple-system-font,BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB , Microsoft YaHei UI , Microsoft YaHei ,Arial,sans-serif;font-size:1em;letter-spacing:0.1em;color:rgb(80, 80, 80);display:block\">"); break;
+        case MD_BLOCK_P:        RENDER_VERBATIM(r,"<p>"); break;
         case MD_BLOCK_TABLE:    RENDER_VERBATIM(r, "<table>\n"); break;
         case MD_BLOCK_THEAD:    RENDER_VERBATIM(r, "<thead>\n"); break;
         case MD_BLOCK_TBODY:    RENDER_VERBATIM(r, "<tbody>\n"); break;
@@ -454,11 +454,11 @@ enter_span_callback(MD_SPANTYPE type, void* detail, void* userdata)
 
     switch(type) {
         case MD_SPAN_EM:                RENDER_VERBATIM(r, "<em>"); break;
-        case MD_SPAN_STRONG:            RENDER_VERBATIM(r, "<strong style=\"text-align:left;line-height:1.75;color:rgba(15, 76, 129, 1);font-weight:bold\">"); break;
+        case MD_SPAN_STRONG:            RENDER_VERBATIM(r, "<strong>"); break;
         case MD_SPAN_U:                 RENDER_VERBATIM(r, "<u>"); break;
         case MD_SPAN_A:                 render_open_a_span(r, (MD_SPAN_A_DETAIL*) detail); break;
         case MD_SPAN_IMG:               render_open_img_span(r, (MD_SPAN_IMG_DETAIL*) detail); break;
-        case MD_SPAN_CODE:              RENDER_VERBATIM(r, "<code style=\"text-align:left;line-height:1.75;font-size:90%;color:#d14;background:rgba(27,31,35,.05);padding:3px 5px;border-radius:4px\">"); break;
+        case MD_SPAN_CODE:              RENDER_VERBATIM(r, "<code>"); break;
         case MD_SPAN_DEL:               RENDER_VERBATIM(r, "<del>"); break;
         case MD_SPAN_LATEXMATH:         RENDER_VERBATIM(r, "<x-equation>"); break;
         case MD_SPAN_LATEXMATH_DISPLAY: RENDER_VERBATIM(r, "<x-equation type=\"display\">"); break;

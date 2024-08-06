@@ -546,8 +546,13 @@ in vec4 a_position;
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>)" << title << R"(</title>
+<link rel="stylesheet" href="./svgviewer.css">
 </head>
-<body>)" << data << R"(</body>
+<body>
+<h1>
+)"<<title<<R"(</h1><div class="container">)" << data << R"(</div>
+<script src="./svgviewer.js"></script>
+</body>
 </html>)";
             } else {
                 ss << R"(<!DOCTYPE html>
