@@ -6,5 +6,6 @@
 namespace fs = std::filesystem;
 
 void handleImagesUpload(const httplib::Request &req, httplib::Response &res);
+std::string Trans(const std::string &q, const std::string &to);
 
 #endif

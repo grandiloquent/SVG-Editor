@@ -48,7 +48,7 @@ function tryUploadImageFromClipboard(baseUri, success, error) {
 function upload(baseUri) {
     if (window.location.protocol === 'https:' || window.location.protocol === 'http:') {
         tryUploadImageFromClipboard(baseUri, (ok) => {
-            const string = `![](/images/${ok})\n\n`;
+            const string = `![](https://chenyunyoga.cn/pictures/${ok})\n\n`;
             textarea.setRangeText(string, textarea.selectionStart, textarea.selectionStart);
         }, (error) => {
             console.log(error);
@@ -57,7 +57,7 @@ function upload(baseUri) {
             input.addEventListener('change', async ev => {
                 const file = input.files[0];
                 const imageFile = await uploadImage(baseUri, file, file.name);
-                const string = `![](/images/${imageFile})\n\n`;
+                const string = `![](https://chenyunyoga.cn/pictures/${imageFile})\n\n`;
                 textarea.setRangeText(string, textarea.selectionStart, textarea.selectionStart);
             });
             input.click();

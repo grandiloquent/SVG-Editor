@@ -7,25 +7,6 @@
 static const char db_name[] = "/storage/emulated/0/.editor/svg.db";
 using db = sqlite::Database<db_name>;
 
-std::string Trans(const std::string &q, const std::string &to) {
-    httplib::Client cli("translate.google.com", 80);
-    std::stringstream ss;
-    ss << "/translate_a/single?client=gtx&sl=auto&tl=";
-    ss << to;
-    ss << "&dt=t&dt=bd&ie=UTF-8&oe=UTF-8&dj=1&source=icon&q=";
-    ss << EncodeUrl(q);
-    if (auto res = cli.Get(
-            ss.str(),
-            {{"User-Agent",
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-              "(KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"}})) {
-
-        return res->body;
-    } else {
-        return {};
-    }
-}
-
 void serveFile(const std::filesystem::path &p, httplib::Response &res,
                const std::map<std::string, std::string> t, std::string &d) {
 
