@@ -20,6 +20,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -44,6 +45,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static psycho.euphoria.svg.CustomWebChromeClient.FILE_CHOOSER_REQUEST_CODE;
 
 
 public class MainActivity extends Activity {
@@ -93,7 +95,6 @@ public class MainActivity extends Activity {
         WebView webView = new WebView(context);
         webView.addJavascriptInterface(new WebAppInterface(context), "NativeAndroid");
         webView.setWebViewClient(new CustomWebViewClient(context));
-        webView.setWebChromeClient(new CustomWebChromeClient(context));
         context.setContentView(webView);
         return webView;
     }
@@ -168,8 +169,12 @@ public class MainActivity extends Activity {
             dir.mkdir();
         launchServer(this);
         mWebView = initializeWebView(this);
+        mCustomWebChromeClient = new CustomWebChromeClient(this);
+        mWebView.setWebChromeClient(mCustomWebChromeClient);
         setWebView(mWebView);
     }
+
+    CustomWebChromeClient mCustomWebChromeClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -215,11 +220,11 @@ public class MainActivity extends Activity {
                 } catch (Exception ignored) {
                 }
                 getAllImageFromFile("/storage/emulated/0/.editor/pdf/1.pdf", start, start + 1, "/storage/emulated/0/.editor/pdf");
-
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
+
     public void getAllImageFromFile(String pathToFile, int start, int end, String dir) {
         try (PDDocument document = PDDocument.load(new File(pathToFile))) {
             int j = 1;
@@ -232,7 +237,7 @@ public class MainActivity extends Activity {
                         //Bitmap bmp = new JP2Decoder(jp2data).decode();
                         //b.compress(CompressFormat.PNG, 100, outputStream);
                         //b.recycle();
-                        Shared.copyStreams(pageImage.createInputStream(),outputStream);
+                        Shared.copyStreams(pageImage.createInputStream(), outputStream);
                     }
                 }
                 //images.put(i, pageImages.isEmpty() ? new ArrayList<>() : pageImages);
@@ -241,6 +246,7 @@ public class MainActivity extends Activity {
             throw new RuntimeException("Can't get images from file: " + e.toString());
         }
     }
+
     private List<PDImageXObject> getImagesFromResources(PDResources resources) throws IOException {
         List<PDImageXObject> images = new ArrayList<>();
         for (COSName xObjectName : resources.getXObjectNames()) {
@@ -255,5 +261,18 @@ public class MainActivity extends Activity {
         return images;
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == FILE_CHOOSER_REQUEST_CODE && resultCode == RESULT_OK) {
+            if (mCustomWebChromeClient.ValueCallback == null) {
+                super.onActivityResult(requestCode, resultCode, data);
+                return;
+            }
+            Uri[] results = WebChromeClient.FileChooserParams.parseResult(resultCode, data);
+            if (mCustomWebChromeClient.ValueCallback != null)
+                mCustomWebChromeClient.ValueCallback.onReceiveValue(results);
+            mCustomWebChromeClient.ValueCallback = null;
+        } else
+            super.onActivityResult(requestCode, resultCode, data);
+    }
 }

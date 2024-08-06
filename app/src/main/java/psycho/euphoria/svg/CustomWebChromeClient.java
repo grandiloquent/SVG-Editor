@@ -1,10 +1,14 @@
 package psycho.euphoria.svg;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.webkit.ConsoleMessage;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 
@@ -22,7 +26,7 @@ public class CustomWebChromeClient extends WebChromeClient {
 
     @Override
     public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-      Log.e("B5aOx2", String.format("onConsoleMessage, %s\n%s", consoleMessage.message(), consoleMessage.lineNumber()));
+        Log.e("B5aOx2", String.format("onConsoleMessage, %s\n%s", consoleMessage.message(), consoleMessage.lineNumber()));
         return super.onConsoleMessage(consoleMessage);
     }
 
@@ -51,5 +55,21 @@ public class CustomWebChromeClient extends WebChromeClient {
 
     }
 
+    public ValueCallback<Uri[]> ValueCallback;
 
+    public static final int FILE_CHOOSER_REQUEST_CODE = 111;
+
+    @Override
+    public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+        Log.e("B5aOx2", String.format("onShowFileChooser, %s", "----------------->"));
+        if (ValueCallback != null)
+            ValueCallback.onReceiveValue(null);
+        ValueCallback = filePathCallback;
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("image/*");
+        Intent chooserIntent = Intent.createChooser(intent, "Choose File");
+        mMainActivity.startActivityForResult(chooserIntent, FILE_CHOOSER_REQUEST_CODE);
+        return true;
+    }
 }
