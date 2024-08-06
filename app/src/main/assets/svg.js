@@ -14,7 +14,7 @@ async function initializeToolbars() {
         }
     } catch (error) {
         topIndexs = [15, 16, 18, 22, 20, 21, 17]
-        bottomIndexs = [1,23, 20, 19, 7, 8, 4, 11]
+        bottomIndexs = [1,23, 20, 24, 7, 8, 4, 11]
     }
     insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
     insertItem(bottomIndexs, '.bar-renderer.bottom', 'bar-item-tab');
@@ -205,6 +205,15 @@ items.push([
         formatBold(textarea) 
     }
 ]);
+items.push([
+    24,
+    "format_align_center",
+    "居中",
+      () => {
+        formatCenter(textarea)
+    }
+]);
+
 
 document.addEventListener('keydown', async evt => {
     if (evt.ctrlKey) {

@@ -913,8 +913,16 @@ function formatBold(textarea) {
     }
     s = s.substring(start, end);
     if (s.startsWith("**")) {
-        textarea.setRangeText(s.replaceAll(/(^\*+)|(\*+$)/g,''),start, end);
-    }else{
-        textarea.setRangeText(`**${s}**`,start, end);
+        textarea.setRangeText(s.replaceAll(/(^\*+)|(\*+$)/g, ''), start, end);
+    } else {
+        textarea.setRangeText(`**${s}**`, start, end);
     }
+}
+
+function formatCenter(textarea) {
+    const points = getLine(textarea);
+    let s = `<div style="text-align:center">${textarea.value.substring(points[0], points[1])}</div>`
+
+    textarea.setRangeText(s, points[0], points[1]);
+
 }
