@@ -113,3 +113,34 @@ code {
     padding: 3px 5px;
     border-radius: 4px
 }
+
+a:focus,
+a:hover {
+    color: #174ea6;
+    text-decoration: underline;
+}
+
+.toc {
+    padding-left: 12px;
+    border-left: 4px solid rgb(52, 168, 83);
+    list-style: none;
+}
+
+.toc li {
+    margin: 0;
+    padding: 0;
+    line-height: 16px;
+    font-size: 13px;
+}
+
+.toc a {
+    color: rgb(32, 33, 36);
+    display: flex;
+    padding: 4px 0;
+    text-decoration: none;
+}
+
+.toc a:focus,
+.toc a:hover {
+    text-decoration: none
+}

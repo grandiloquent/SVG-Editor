@@ -63,15 +63,15 @@ function upload(baseUri) {
     //         input.click();
     //     });
     // } else {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.addEventListener('change', async ev => {
-            const file = input.files[0];
-            const imageFile = await uploadImage(baseUri,file, file.name);
-            const string = `![](https://chenyunyoga.cn/pictures/${imageFile})\n\n`;
-            textarea.setRangeText(string, textarea.selectionStart, textarea.selectionStart);
-        });
-        input.click();
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.addEventListener('change', async ev => {
+        const file = input.files[0];
+        const imageFile = await uploadImage(baseUri, file, file.name);
+        const string = `![](https://chenyunyoga.cn/pictures/${imageFile})\n\n`;
+        textarea.setRangeText(string, textarea.selectionStart, textarea.selectionStart);
+    });
+    input.click();
     //}
 }
 
@@ -878,7 +878,7 @@ async function insertImage(baseUri) {
 function deleteBlock() {
     let points = findExtendPosition(textarea);
     let q = textarea.value.substring(points[0], points[1]).trim();
-    textarea.setRangeText("",points[0], points[1]);
+    textarea.setRangeText("", points[0], points[1]);
     writeText(q);
 }
 
@@ -901,3 +901,20 @@ function formatHead(textarea) {
     textarea.setRangeText(`## ${str}`, start, end + 1);
 }
 
+function formatBold(textarea) {
+    let start = textarea.selectionStart;
+    let end = textarea.selectionEnd;
+    let s = textarea.value;
+    while (start - 1 > -1 && !/\s/.test(s[start - 1])) {
+        start--;
+    }
+    while (end < s.length && !/\s/.test(s[end])) {
+        end++;
+    }
+    s = s.substring(start, end);
+    if (s.startsWith("**")) {
+        textarea.setRangeText(s.replaceAll(/(^\*+)|(\*+$)/g,''),start, end);
+    }else{
+        textarea.setRangeText(`**${s}**`,start, end);
+    }
+}

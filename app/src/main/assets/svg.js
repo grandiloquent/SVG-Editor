@@ -14,7 +14,7 @@ async function initializeToolbars() {
         }
     } catch (error) {
         topIndexs = [15, 16, 18, 22, 20, 21, 17]
-        bottomIndexs = [1, 20, 19, 7, 8, 4, 11, 12]
+        bottomIndexs = [1,23, 20, 19, 7, 8, 4, 11]
     }
     insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
     insertItem(bottomIndexs, '.bar-renderer.bottom', 'bar-item-tab');
@@ -197,6 +197,15 @@ items.push([
         formatHead(textarea) 
     }
 ]);
+items.push([
+    23,
+    "format_bold",
+    "粗体",
+      () => {
+        formatBold(textarea) 
+    }
+]);
+
 document.addEventListener('keydown', async evt => {
     if (evt.ctrlKey) {
         if (evt.key === 's') {
