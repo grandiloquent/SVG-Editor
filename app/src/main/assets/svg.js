@@ -14,7 +14,7 @@ async function initializeToolbars() {
         }
     } catch (error) {
         topIndexs = [15, 16, 18, 22, 20, 21, 17]
-        bottomIndexs = [1,23, 20, 24, 7, 8, 4, 11]
+        bottomIndexs = [1, 23, 20, 24, 25, 8, 4, 11]
     }
     insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
     insertItem(bottomIndexs, '.bar-renderer.bottom', 'bar-item-tab');
@@ -193,24 +193,32 @@ items.push([
     22,
     "title",
     "标题",
-      () => {
-        formatHead(textarea) 
+    () => {
+        formatHead(textarea)
     }
 ]);
 items.push([
     23,
     "format_bold",
     "粗体",
-      () => {
-        formatBold(textarea) 
+    () => {
+        formatBold(textarea)
     }
 ]);
 items.push([
     24,
     "format_align_center",
     "居中",
-      () => {
+    () => {
         formatCenter(textarea)
+    }
+]);
+items.push([
+    25,
+    "segment",
+    "格式",
+    () => {
+        formatter(textarea)
     }
 ]);
 

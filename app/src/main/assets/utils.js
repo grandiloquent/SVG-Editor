@@ -924,5 +924,13 @@ function formatCenter(textarea) {
     let s = `<div style="text-align:center">${textarea.value.substring(points[0], points[1])}</div>`
 
     textarea.setRangeText(s, points[0], points[1]);
+}
+function formatter(textarea) {
+    textarea.value= textarea.value.replaceAll(/[\r\n]+\s*[\r\n]+/g, m => {
+        if ([...m.matchAll(/\n/g)].length > 2) {
+            return '\r\n\r\n'
+        }
+        return m;
+    });
 
 }
