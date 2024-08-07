@@ -119,7 +119,28 @@ a:hover {
     color: #174ea6;
     text-decoration: underline;
 }
-
+code{
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    font: 500 90% / 1em Roboto Mono, monospace;
+    word-break: break-word;
+}
+pre {
+    font: 14px/20px Roboto Mono, monospace;
+    margin: 16px 0;
+    overflow-x: auto;
+    padding: 24px;
+    position: relative;
+    background-color:rgb(248, 249, 250);
+    color:rgb(55, 71, 79);
+    border-radius: 8px;
+}
+pre code {
+    background: 0;
+    border: 0;
+    font-size: 14px;
+    padding: 0
+}
 .toc {
     padding-left: 12px;
     border-left: 4px solid rgb(52, 168, 83);

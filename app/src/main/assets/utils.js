@@ -908,14 +908,20 @@ function formatBold(textarea) {
     while (start - 1 > -1 && !/\s/.test(s[start - 1])) {
         start--;
     }
+    while (start - 1 > -1 && /\s/.test(s[start - 1])) {
+        start--;
+    }
     while (end < s.length && !/\s/.test(s[end])) {
+        end++;
+    }
+    while (end < s.length && /\s/.test(s[end])) {
         end++;
     }
     s = s.substring(start, end);
     if (s.startsWith("**")) {
         textarea.setRangeText(s.replaceAll(/(^\*+)|(\*+$)/g, ''), start, end);
     } else {
-        textarea.setRangeText(`**${s}**`, start, end);
+        textarea.setRangeText(`**${s.trim()}**`, start, end);
     }
 }
 
@@ -933,4 +939,28 @@ function formatter(textarea) {
         return m;
     });
 
+}
+
+function formatCode(textarea) {
+    let start = textarea.selectionStart;
+    let end = textarea.selectionEnd;
+    let s = textarea.value;
+    while (start - 1 > -1 && !/\s/.test(s[start - 1])) {
+        start--;
+    }
+    while (start - 1 > -1 && /\s/.test(s[start - 1])) {
+        start--;
+    }
+    while (end < s.length && !/\s/.test(s[end])) {
+        end++;
+    }
+    while (end < s.length && /\s/.test(s[end])) {
+        end++;
+    }
+    s = s.substring(start, end);
+    if (s.startsWith("`")) {
+        textarea.setRangeText(s.replaceAll(/(^`+)|(`+$)/g, ''), start, end);
+    } else {
+        textarea.setRangeText(`\`${s.trim()}\``, start, end);
+    }
 }

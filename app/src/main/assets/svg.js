@@ -14,7 +14,7 @@ async function initializeToolbars() {
         }
     } catch (error) {
         topIndexs = [15, 16, 18, 22, 20, 21, 17]
-        bottomIndexs = [1, 23, 20, 24, 25, 8, 4, 11]
+        bottomIndexs = [1, 23, 20, 24, 25, 26, 4, 11]
     }
     insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
     insertItem(bottomIndexs, '.bar-renderer.bottom', 'bar-item-tab');
@@ -221,7 +221,14 @@ items.push([
         formatter(textarea)
     }
 ]);
-
+items.push([
+    26,
+    "code",
+    "代码",
+    () => {
+        formatCode(textarea)
+    }
+]);
 
 document.addEventListener('keydown', async evt => {
     if (evt.ctrlKey) {
