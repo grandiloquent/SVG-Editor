@@ -104,7 +104,7 @@ strong {
     font-weight: bold
 }
 
-code {
+/* code {
     text-align: left;
     line-height: 1.75;
     font-size: 90%;
@@ -112,8 +112,10 @@ code {
     background: rgba(27, 31, 35, .05);
     padding: 3px 5px;
     border-radius: 4px
+} */
+a{
+    text-decoration: none;
 }
-
 a:focus,
 a:hover {
     color: #174ea6;
@@ -122,18 +124,22 @@ a:hover {
 code{
     border: 1px solid #dadce0;
     border-radius: 4px;
-    font: 500 90% / 1em Roboto Mono, monospace;
+    font: 500 90% / 1em Consolas Roboto Mono, monospace;
     word-break: break-word;
+    background-color:rgb(248, 249, 250);
+    color:rgb(55, 71, 79);
+    padding: 1px 4px;
 }
 pre {
-    font: 14px/20px Roboto Mono, monospace;
+    font: 14px/20px Consolas Roboto Mono, monospace;
     margin: 16px 0;
     overflow-x: auto;
-    padding: 24px;
+    padding: 12px;
     position: relative;
     background-color:rgb(248, 249, 250);
     color:rgb(55, 71, 79);
     border-radius: 8px;
+    border: 1px solid #e8eaed;
 }
 pre code {
     background: 0;
