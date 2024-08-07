@@ -114,7 +114,10 @@ strong {
     border-radius: 4px
 } */
 a{
+    color: #174ea6;
     text-decoration: none;
+    outline: 0;
+    word-break: break-word
 }
 a:focus,
 a:hover {
@@ -124,14 +127,14 @@ a:hover {
 code{
     border: 1px solid #dadce0;
     border-radius: 4px;
-    font: 500 90% / 1em Consolas Roboto Mono, monospace;
+    font: 500 90% / 1em Consolas, Roboto Mono, monospace;
     word-break: break-word;
     background-color:rgb(248, 249, 250);
     color:rgb(55, 71, 79);
     padding: 1px 4px;
 }
 pre {
-    font: 14px/20px Consolas Roboto Mono, monospace;
+    font: 14px/20px Consolas,Roboto Mono, monospace;
     margin: 16px 0;
     overflow-x: auto;
     padding: 12px;
