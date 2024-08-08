@@ -20,9 +20,13 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.FrameLayout;
+import android.widget.FrameLayout.LayoutParams;
 
 
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader;
@@ -59,7 +63,10 @@ public class MainActivity extends Activity {
         System.loadLibrary("nativelib");
     }
 
-    private WebView mWebView;
+    private WebView mWebView1;
+    private WebView mWebView2;
+    CustomWebChromeClient mCustomWebChromeClient1;
+    CustomWebChromeClient mCustomWebChromeClient2;
 
     public static void aroundFileUriExposedException() {
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
@@ -91,11 +98,32 @@ public class MainActivity extends Activity {
         return String.format("http://%s:%d", host, DEFAULT_PORT);
     }
 
+    public void getAllImageFromFile(String pathToFile, int start, int end, String dir) {
+        try (PDDocument document = PDDocument.load(new File(pathToFile))) {
+            int j = 1;
+            for (int i = start; i < Math.min(document.getNumberOfPages(), end); i++) {
+                PDPage page = document.getPage(i);
+                List<PDImageXObject> pageImages = getImagesFromResources(page.getResources());
+                for (PDImageXObject pageImage : pageImages) {
+                    try (FileOutputStream outputStream = new FileOutputStream(dir + "/" + (j++) + ".png")) {
+                        //Bitmap bitmap =
+                        //Bitmap bmp = new JP2Decoder(jp2data).decode();
+                        //b.compress(CompressFormat.PNG, 100, outputStream);
+                        //b.recycle();
+                        Shared.copyStreams(pageImage.createInputStream(), outputStream);
+                    }
+                }
+                //images.put(i, pageImages.isEmpty() ? new ArrayList<>() : pageImages);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Can't get images from file: " + e.toString());
+        }
+    }
+
     public static WebView initializeWebView(MainActivity context) {
         WebView webView = new WebView(context);
         webView.addJavascriptInterface(new WebAppInterface(context), "NativeAndroid");
         webView.setWebViewClient(new CustomWebViewClient(context));
-        context.setContentView(webView);
         return webView;
     }
 
@@ -153,6 +181,22 @@ public class MainActivity extends Activity {
 
     public static native String startServer(Context context, AssetManager assetManager, String host, int port);
 
+    private List<PDImageXObject> getImagesFromResources(PDResources resources) throws IOException {
+        List<PDImageXObject> images = new ArrayList<>();
+        for (COSName xObjectName : resources.getXObjectNames()) {
+            PDXObject xObject = resources.getXObject(xObjectName);
+            if (xObject instanceof PDFormXObject) {
+                images.addAll(getImagesFromResources(((PDFormXObject) xObject).getResources()));
+            } else if (xObject instanceof PDImageXObject) {
+                PDImageXObject image = ((PDImageXObject) xObject);
+                images.add(image);
+            }
+        }
+        return images;
+    }
+
+    private FrameLayout mFrameLayout;
+
     private void initialize() {
         requestNotificationPermission(this);
         List<String> permissions = new ArrayList<>();
@@ -168,13 +212,37 @@ public class MainActivity extends Activity {
         if (!dir.isDirectory())
             dir.mkdir();
         launchServer(this);
-        mWebView = initializeWebView(this);
-        mCustomWebChromeClient = new CustomWebChromeClient(this);
-        mWebView.setWebChromeClient(mCustomWebChromeClient);
-        setWebView(mWebView);
+        mWebView1 = initializeWebView(this);
+        mCustomWebChromeClient1 = new CustomWebChromeClient(this);
+        mWebView1.setWebChromeClient(mCustomWebChromeClient1);
+        setWebView(mWebView1);
+        mWebView2 = initializeWebView(this);
+        mCustomWebChromeClient2 = new CustomWebChromeClient(this);
+        mWebView2.setWebChromeClient(mCustomWebChromeClient2);
+        mFrameLayout = new FrameLayout(this);
+        mFrameLayout.addView(mWebView1);
+        mWebView2.setVisibility(View.INVISIBLE);
+        mFrameLayout.addView(mWebView2);
+        setWebView(mWebView2);
+        setContentView(mFrameLayout, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
-    CustomWebChromeClient mCustomWebChromeClient;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        CustomWebChromeClient customWebChromeClient = mWebView1.getVisibility() == View.VISIBLE ?
+                mCustomWebChromeClient1 : mCustomWebChromeClient2;
+        if (requestCode == FILE_CHOOSER_REQUEST_CODE && resultCode == RESULT_OK) {
+            if (customWebChromeClient.ValueCallback == null) {
+                super.onActivityResult(requestCode, resultCode, data);
+                return;
+            }
+            Uri[] results = WebChromeClient.FileChooserParams.parseResult(resultCode, data);
+            if (customWebChromeClient.ValueCallback != null)
+                customWebChromeClient.ValueCallback.onReceiveValue(results);
+            customWebChromeClient.ValueCallback = null;
+        } else
+            super.onActivityResult(requestCode, resultCode, data);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,8 +252,9 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (mWebView != null && mWebView.canGoBack()) {
-            mWebView.goBack();
+        WebView webView = mWebView1.getVisibility() == View.VISIBLE ? mWebView1 : mWebView2;
+        if (webView != null && webView.canGoBack()) {
+            webView.goBack();
             return;
         }
         super.onBackPressed();
@@ -196,83 +265,46 @@ public class MainActivity extends Activity {
         menu.add(0, 1, 0, "刷新");
         menu.add(0, 2, 0, "首页");
         menu.add(0, 3, 0, "复制");
-        menu.add(0, 4, 0, "PDF");
+        MenuItem menuItem = menu.add(0, 4, 0, "切换");
+        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.add(0, 5, 0, "打开");
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        WebView webView = mWebView1.getVisibility() == View.VISIBLE ? mWebView1 : mWebView2;
         switch (item.getItemId()) {
             case 1:
-                mWebView.reload();
+                webView.reload();
                 break;
             case 2:
-                mWebView.loadUrl(getAddress(this));
+                webView.loadUrl(getAddress(this));
                 break;
             case 3:
-                Shared.setText(this, mWebView.getUrl());
+                Shared.setText(this, webView.getUrl());
                 break;
             case 4:
-                PDFBoxResourceLoader.init(getApplicationContext());
-                int start = 78;
-                try {
-                    start = Integer.parseInt(Shared.getText(this).toString());
-                } catch (Exception ignored) {
+//                PDFBoxResourceLoader.init(getApplicationContext());
+//                int start = 78;
+//                try {
+//                    start = Integer.parseInt(Shared.getText(this).toString());
+//                } catch (Exception ignored) {
+//                }
+//                getAllImageFromFile("/storage/emulated/0/.editor/pdf/1.pdf", start, start + 1, "/storage/emulated/0/.editor/pdf");
+//
+                if (mWebView1.getVisibility() == View.VISIBLE) {
+                    mWebView1.setVisibility(View.INVISIBLE);
+                    mWebView2.setVisibility(View.VISIBLE);
+                } else {
+                    mWebView2.setVisibility(View.INVISIBLE);
+                    mWebView1.setVisibility(View.VISIBLE);
                 }
-                getAllImageFromFile("/storage/emulated/0/.editor/pdf/1.pdf", start, start + 1, "/storage/emulated/0/.editor/pdf");
+                break;
+            case 5:
+                webView.loadUrl("http://0.0.0.0:8500");
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void getAllImageFromFile(String pathToFile, int start, int end, String dir) {
-        try (PDDocument document = PDDocument.load(new File(pathToFile))) {
-            int j = 1;
-            for (int i = start; i < Math.min(document.getNumberOfPages(), end); i++) {
-                PDPage page = document.getPage(i);
-                List<PDImageXObject> pageImages = getImagesFromResources(page.getResources());
-                for (PDImageXObject pageImage : pageImages) {
-                    try (FileOutputStream outputStream = new FileOutputStream(dir + "/" + (j++) + ".png")) {
-                        //Bitmap bitmap =
-                        //Bitmap bmp = new JP2Decoder(jp2data).decode();
-                        //b.compress(CompressFormat.PNG, 100, outputStream);
-                        //b.recycle();
-                        Shared.copyStreams(pageImage.createInputStream(), outputStream);
-                    }
-                }
-                //images.put(i, pageImages.isEmpty() ? new ArrayList<>() : pageImages);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Can't get images from file: " + e.toString());
-        }
-    }
-
-    private List<PDImageXObject> getImagesFromResources(PDResources resources) throws IOException {
-        List<PDImageXObject> images = new ArrayList<>();
-        for (COSName xObjectName : resources.getXObjectNames()) {
-            PDXObject xObject = resources.getXObject(xObjectName);
-            if (xObject instanceof PDFormXObject) {
-                images.addAll(getImagesFromResources(((PDFormXObject) xObject).getResources()));
-            } else if (xObject instanceof PDImageXObject) {
-                PDImageXObject image = ((PDImageXObject) xObject);
-                images.add(image);
-            }
-        }
-        return images;
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == FILE_CHOOSER_REQUEST_CODE && resultCode == RESULT_OK) {
-            if (mCustomWebChromeClient.ValueCallback == null) {
-                super.onActivityResult(requestCode, resultCode, data);
-                return;
-            }
-            Uri[] results = WebChromeClient.FileChooserParams.parseResult(resultCode, data);
-            if (mCustomWebChromeClient.ValueCallback != null)
-                mCustomWebChromeClient.ValueCallback.onReceiveValue(results);
-            mCustomWebChromeClient.ValueCallback = null;
-        } else
-            super.onActivityResult(requestCode, resultCode, data);
     }
 }
