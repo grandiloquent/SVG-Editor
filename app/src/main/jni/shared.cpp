@@ -109,6 +109,9 @@ std::string EncodeUrl(const std::string &s) {
             case '\'':
                 result += "%27";
                 break;
+            case '&':
+                result += "%26";
+                break;
             case ',':
                 result += "%2C";
                 break;
@@ -122,6 +125,7 @@ std::string EncodeUrl(const std::string &s) {
             case '%':
                 result += "%25";
                 break;
+
             default:
                 auto c = static_cast<uint8_t>(s[i]);
                 if (c >= 0x80) {
