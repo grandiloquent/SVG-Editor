@@ -302,7 +302,7 @@ public class MainActivity extends Activity {
                 }
                 break;
             case 5:
-                webView.loadUrl("http://0.0.0.0:8500");
+                webView.loadUrl("http://0.0.0.0:8500/app.html");
                 break;
         }
         return super.onOptionsItemSelected(item);
