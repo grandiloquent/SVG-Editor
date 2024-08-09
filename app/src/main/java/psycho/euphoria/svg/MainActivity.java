@@ -17,6 +17,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.os.StrictMode;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
@@ -289,7 +291,12 @@ public class MainActivity extends Activity {
         menu.add(0, 3, 0, "复制");
         MenuItem menuItem = menu.add(0, 4, 0, "切换");
         menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        MenuItem menuItem1 = menu.add(0, 8, 0, "搜索");
+        menuItem1.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
         menu.add(0, 5, 0, "打开");
+        menu.add(0, 6, 0, "收藏");
+        menu.add(0, 7, 0, "历史");
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -325,6 +332,20 @@ public class MainActivity extends Activity {
                 break;
             case 5:
                 webView.loadUrl("http://0.0.0.0:8500/app.html");
+                break;
+            case 6:
+                PreferenceManager.getDefaultSharedPreferences(this)
+                        .edit().putString("uri", webView.getUrl())
+                        .apply();
+                break;
+            case 7:
+                webView.loadUrl(PreferenceManager.getDefaultSharedPreferences(this)
+                        .getString("uri", "http://0.0.0.0:8500/app.html"))
+                ;
+                break;
+            case 8:
+                webView.loadUrl("https://www.google.com/search?q="+Uri.encode(Shared.getText(this).toString()));
+                ;
                 break;
         }
         return super.onOptionsItemSelected(item);
