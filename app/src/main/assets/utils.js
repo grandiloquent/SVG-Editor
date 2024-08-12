@@ -894,7 +894,7 @@ function formatHead(textarea) {
         end++;
     }
     let str = textarea.value.slice(start, end + 1);
-    str=str.replaceAll(/(^\*+)|(\*+$)/g,'');
+    str = str.replaceAll(/(^\*+)|(\*+$)/g, '');
     if (str.startsWith('#')) {
         textarea.setRangeText(`#${str}`, start, end + 1);
         return;
@@ -932,9 +932,18 @@ function formatBold(textarea) {
     //             else
     //             textarea.setRangeText(`**${s.trim()}**`, start, end);
     //     }
-    const points = getLine(textarea);
-    let s = textarea.value.substring(points[0], points[1]);
-    textarea.setRangeText(`**${s}**`, points[0], points[1]);
+
+    let start = textarea.selectionStart;
+    let end = textarea.selectionEnd;
+    if (end - start > 0) {
+        let s = textarea.value.substring(start, end);
+        textarea.setRangeText(`**${s}**`, start, end);
+    } else {
+        const points = getLine(textarea);
+        let s = textarea.value.substring(points[0], points[1]);
+        textarea.setRangeText(`**${s}**`, points[0], points[1]);
+    }
+
 }
 
 function formatCenter(textarea) {
