@@ -894,6 +894,7 @@ function formatHead(textarea) {
         end++;
     }
     let str = textarea.value.slice(start, end + 1);
+    str=str.replaceAll(/(^\*+)|(\*+$)/g,'');
     if (str.startsWith('#')) {
         textarea.setRangeText(`#${str}`, start, end + 1);
         return;
@@ -902,35 +903,38 @@ function formatHead(textarea) {
 }
 
 function formatBold(textarea) {
-    let start = textarea.selectionStart;
-    let end = textarea.selectionEnd;
-    let s = textarea.value;
-    while (start - 1 > -1 && !/\s/.test(s[start - 1])) {
-        start--;
-    }
-    while (start - 1 > -1 && /\s/.test(s[start - 1])) {
-        start--;
-    }
-    while (end < s.length && !/\s/.test(s[end])) {
-        end++;
-    }
-    while (end < s.length && /\s/.test(s[end])) {
-        end++;
-    }
-    s = s.substring(start, end);
-    if (s.startsWith("**")) {
-        textarea.setRangeText(s.replaceAll(/(^\*+)|(\*+$)/g, ''), start, end);
-    } else {
-        console.log(s)
-        if (s.startsWith("\n"))
-            textarea.setRangeText(`
+    //     let start = textarea.selectionStart;
+    //     let end = textarea.selectionEnd;
+    //     let s = textarea.value;
+    //     while (start - 1 > -1 && !/\s/.test(s[start - 1])) {
+    //         start--;
+    //     }
+    //     while (start - 1 > -1 && /\s/.test(s[start - 1])) {
+    //         start--;
+    //     }
+    //     while (end < s.length && !/\s/.test(s[end])) {
+    //         end++;
+    //     }
+    //     while (end < s.length && /\s/.test(s[end])) {
+    //         end++;
+    //     }
+    //     s = s.substring(start, end);
+    //     if (s.startsWith("**")) {
+    //         textarea.setRangeText(s.replaceAll(/(^\*+)|(\*+$)/g, ''), start, end);
+    //     } else {
 
-**${s.trim()}**
+    //         if (s.startsWith("\n")||s.startsWith("\r"))
+    //             textarea.setRangeText(`
 
-`,start,end);
-            else
-            textarea.setRangeText(`**${s.trim()}**`, start, end);
-    }
+    // **${s.trim()}**
+
+    // `,start,end);
+    //             else
+    //             textarea.setRangeText(`**${s.trim()}**`, start, end);
+    //     }
+    const points = getLine(textarea);
+    let s = textarea.value.substring(points[0], points[1]);
+    textarea.setRangeText(`**${s}**`, points[0], points[1]);
 }
 
 function formatCenter(textarea) {

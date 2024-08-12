@@ -245,15 +245,18 @@ document.addEventListener('keydown', async evt => {
             formatBold(textarea)
         } else if (evt.key === 'F3') {
             evt.preventDefault();
-            textarea.value = "其他\n" + (await readText()).replace(`var createScene = `, `const createScene = async `)
+            deleteBlock()
+            //textarea.value = "其他\n" + (await readText()).replace(`var createScene = `, `const createScene = async `)
         } else if (evt.key === 'F4') {
             evt.preventDefault();
-            await saveData();
-            if (typeof NativeAndroid !== 'undefined') {
-                NativeAndroid.launchApp("psycho.euphoria.l", `/svgviewer?id=${id}`);
-            } else {
-                window.open(`${baseUri}/svgviewer?id=${id}`, '_blank');
-            }
+            // await saveData();
+            // if (typeof NativeAndroid !== 'undefined') {
+            //     NativeAndroid.launchApp("psycho.euphoria.l", `/svgviewer?id=${id}`);
+            // } else {
+            //     window.open(`${baseUri}/svgviewer?id=${id}`, '_blank');
+            // }
+            formatHead(textarea)
+            
         } else if (evt.key === 'F5') {
             evt.preventDefault();
             formatCode()
