@@ -878,7 +878,16 @@ async function insertImage(baseUri) {
 function deleteBlock() {
     let points = findExtendPosition(textarea);
     let q = textarea.value.substring(points[0], points[1]).trim();
-    textarea.setRangeText("", points[0], points[1]);
+    let start = points[0];
+    let end = points[1];
+    
+    while (start - 1 > -1 && /\s/.test(textarea.value[start-1])) {
+        start--;
+    }
+    while (end < textarea.value.length - 1 && /\s/.test(textarea.value[end+1])) {
+        end++;
+    }
+    textarea.setRangeText("\r\n", start, end);
     writeText(q);
 }
 
