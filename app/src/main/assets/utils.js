@@ -921,7 +921,15 @@ function formatBold(textarea) {
     if (s.startsWith("**")) {
         textarea.setRangeText(s.replaceAll(/(^\*+)|(\*+$)/g, ''), start, end);
     } else {
-        textarea.setRangeText(`**${s.trim()}**`, start, end);
+        console.log(s)
+        if (s.startsWith("\n"))
+            textarea.setRangeText(`
+
+**${s.trim()}**
+
+`,start,end);
+            else
+            textarea.setRangeText(`**${s.trim()}**`, start, end);
     }
 }
 
@@ -932,7 +940,7 @@ function formatCenter(textarea) {
     textarea.setRangeText(s, points[0], points[1]);
 }
 function formatter(textarea) {
-    textarea.value= textarea.value.replaceAll(/[\r\n]+\s*[\r\n]+/g, m => {
+    textarea.value = textarea.value.replaceAll(/[\r\n]+\s*[\r\n]+/g, m => {
         if ([...m.matchAll(/\n/g)].length > 2) {
             return '\r\n\r\n'
         }

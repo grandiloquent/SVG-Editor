@@ -239,10 +239,10 @@ document.addEventListener('keydown', async evt => {
     } else {
         if (evt.key === 'F1') {
             evt.preventDefault();
-            snippet(textarea);
+            await translateEnglish(textarea);
         } else if (evt.key === 'F2') {
             evt.preventDefault();
-            location = '/svg.html'
+            formatBold(textarea)
         } else if (evt.key === 'F3') {
             evt.preventDefault();
             textarea.value = "其他\n" + (await readText()).replace(`var createScene = `, `const createScene = async `)
