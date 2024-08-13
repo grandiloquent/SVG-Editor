@@ -946,11 +946,11 @@ function formatBold(textarea) {
     let end = textarea.selectionEnd;
     if (end - start > 0) {
         let s = textarea.value.substring(start, end);
-        textarea.setRangeText(`**${s}**`, start, end);
+        textarea.setRangeText(`**${s.trim()}**`, start, end);
     } else {
         const points = getLine(textarea);
         let s = textarea.value.substring(points[0], points[1]);
-        textarea.setRangeText(`**${s}**`, points[0], points[1]);
+        textarea.setRangeText(`**${s.trim()}**`, points[0], points[1]);
     }
 
 }
