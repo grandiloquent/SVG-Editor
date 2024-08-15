@@ -1,3 +1,20 @@
+if(!String.prototype.matchAll) {
+    String.prototype.matchAll = function (rx) {
+        if (typeof rx === "string") rx = new RegExp(rx, "g"); // coerce a string to be a global regex
+        rx = new RegExp(rx); // Clone the regex so we don't update the last index on the regex they pass us
+        let cap = []; // the single capture
+        let all = []; // all the captures (return this)
+        while ((cap = rx.exec(this)) !== null) all.push(cap); // execute and add
+        return all; // profit!
+    };
+}
+if(!String.prototype.replaceAll ){
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};
+}
+
 let baseUri = window.location.host === "127.0.0.1:5500" ? "http://192.168.8.55:8090" : "..";
 const searchParams = new URL(window.location).searchParams;
 let id = searchParams.get('id');

@@ -227,6 +227,13 @@ public class MainActivity extends Activity {
         if (checkSelfPermission(permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             permissions.add(permission.CAMERA);
         }
+        if (checkSelfPermission(permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            permissions.add(permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (VERSION.SDK_INT < VERSION_CODES.R && checkSelfPermission(permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            permissions.add(permission.WRITE_EXTERNAL_STORAGE);
+        }
+
         if (!permissions.isEmpty()) {
             requestPermissions(permissions.toArray(new String[0]), 0);
         }
@@ -293,7 +300,6 @@ public class MainActivity extends Activity {
         menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         MenuItem menuItem1 = menu.add(0, 8, 0, "搜索");
         menuItem1.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-
         menu.add(0, 5, 0, "打开");
         menu.add(0, 6, 0, "收藏");
         menu.add(0, 7, 0, "历史");
@@ -344,7 +350,7 @@ public class MainActivity extends Activity {
                 ;
                 break;
             case 8:
-                webView.loadUrl("https://www.google.com/search?q="+Uri.encode(Shared.getText(this).toString()));
+                webView.loadUrl("https://www.google.com/search?q=" + Uri.encode(Shared.getText(this).toString()));
                 ;
                 break;
         }
