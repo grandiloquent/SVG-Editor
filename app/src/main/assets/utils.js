@@ -893,13 +893,13 @@ async function gemini(textarea) {
             throw new Error(`${response.status}: ${response.statusText}`)
         }
         const results = await response.json();
-        let texts= results["candidates"][0]["content"]["parts"]
-            .forEach(x => {
+        let texts = results["candidates"][0]["content"]["parts"]
+            .map(x => {
                 return x["text"]
             }).join("\n");
         textarea.setRangeText(`\r\n\r\n${texts}`, points[1], points[1]);
     } catch (error) {
-        textarea.setRangeText(`错误`, points[1], points[1]);
+        textarea.setRangeText(error, points[1], points[1]);
     }
 }
 async function insertImage(baseUri) {
