@@ -14,7 +14,7 @@ async function initializeToolbars() {
         }
     } catch (error) {
         topIndexs = [15, 16, 18, 22, 20, 21, 2]
-        bottomIndexs = [1, 23, 24, 25, 26, 4, 11]
+        bottomIndexs = [1, 23, 24, 25, 26, 27, 11]
     }
     insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
     insertItem(bottomIndexs, '.bar-renderer.bottom', 'bar-item-tab');
@@ -227,6 +227,14 @@ items.push([
     "代码",
     () => {
         formatCode(textarea)
+    }
+]);
+items.push([
+    27,
+    "eco",
+    "智能",
+    () => {
+        gemini(textarea)
     }
 ]);
 

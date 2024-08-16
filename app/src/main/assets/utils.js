@@ -1,4 +1,4 @@
-if(!String.prototype.matchAll) {
+if (!String.prototype.matchAll) {
     String.prototype.matchAll = function (rx) {
         if (typeof rx === "string") rx = new RegExp(rx, "g"); // coerce a string to be a global regex
         rx = new RegExp(rx); // Clone the regex so we don't update the last index on the regex they pass us
@@ -8,11 +8,11 @@ if(!String.prototype.matchAll) {
         return all; // profit!
     };
 }
-if(!String.prototype.replaceAll ){
-String.prototype.replaceAll = function(search, replacement) {
-    var target = this;
-    return target.replace(new RegExp(search, 'g'), replacement);
-};
+if (!String.prototype.replaceAll) {
+    String.prototype.replaceAll = function (search, replacement) {
+        var target = this;
+        return target.replace(new RegExp(search, 'g'), replacement);
+    };
 }
 
 let baseUri = window.location.host === "127.0.0.1:5500" ? "http://192.168.8.55:8090" : "..";
@@ -883,6 +883,25 @@ async function translateEnglish(textarea, language) {
         console.log(error);
     }
 }
+async function gemini(textarea) {
+    let points = getLine(textarea);
+    let s = textarea.value.substring(points[0], points[1]).trim();
+
+    try {
+        const response = await fetch(`${baseUri}/gemini?q=${encodeURIComponent(s)}`);
+        if (response.status > 399 || response.status < 200) {
+            throw new Error(`${response.status}: ${response.statusText}`)
+        }
+        const results = await response.json();
+        let texts= results["candidates"][0]["content"]["parts"]
+            .forEach(x => {
+                return x["text"]
+            }).join("\n");
+        textarea.setRangeText(`\r\n\r\n${texts}`, points[1], points[1]);
+    } catch (error) {
+        textarea.setRangeText(`错误`, points[1], points[1]);
+    }
+}
 async function insertImage(baseUri) {
     let points = getLine(textarea);
     let q = textarea.value.substring(points[0], points[1]).trim();
@@ -897,11 +916,11 @@ function deleteBlock() {
     let q = textarea.value.substring(points[0], points[1]).trim();
     let start = points[0];
     let end = points[1];
-    
-    while (start - 1 > -1 && /\s/.test(textarea.value[start-1])) {
+
+    while (start - 1 > -1 && /\s/.test(textarea.value[start - 1])) {
         start--;
     }
-    while (end < textarea.value.length - 1 && /\s/.test(textarea.value[end+1])) {
+    while (end < textarea.value.length - 1 && /\s/.test(textarea.value[end + 1])) {
         end++;
     }
     textarea.setRangeText("\r\n", start, end);
