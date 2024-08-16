@@ -550,7 +550,7 @@ in vec4 a_position;
 </head>
 <body>
 <h1>
-)"<<title<<R"(</h1><div class="container">)" << data << R"(</div>
+)" << title << R"(</h1><div class="container">)" << data << R"(</div>
 <script src="./svgviewer.js"></script>
 </body>
 </html>)";
@@ -663,6 +663,10 @@ in vec4 a_position;
     });
     server.Post("/picture", [&](const auto &req, auto &res) {
         handleImagesUpload(req, res);
+    });
+    server.Get("/gemini", [](const httplib::Request &req, httplib::Response &res) {
+        res.set_header("Access-Control-Allow-Origin", "*");
+        handleGemini(req, res);
     });
     server.Get("/download", [](const httplib::Request &req, httplib::Response &res) {
         std::vector<unsigned char> zip_vect;
