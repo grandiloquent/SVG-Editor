@@ -21,6 +21,8 @@ import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -72,6 +74,7 @@ public class MainActivity extends Activity {
     private WebView mWebView2;
     CustomWebChromeClient mCustomWebChromeClient1;
     CustomWebChromeClient mCustomWebChromeClient2;
+    private FrameLayout mFrameLayout;
 
     public static void aroundFileUriExposedException() {
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
@@ -201,6 +204,7 @@ public class MainActivity extends Activity {
 */
             }
         });
+        registerForContextMenu(webView);
     }
 
     public static native String startServer(Context context, AssetManager assetManager, String host, int port);
@@ -219,8 +223,6 @@ public class MainActivity extends Activity {
         return images;
     }
 
-    private FrameLayout mFrameLayout;
-
     private void initialize() {
         requestNotificationPermission(this);
         List<String> permissions = new ArrayList<>();
@@ -233,7 +235,6 @@ public class MainActivity extends Activity {
         if (VERSION.SDK_INT < VERSION_CODES.R && checkSelfPermission(permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             permissions.add(permission.WRITE_EXTERNAL_STORAGE);
         }
-
         if (!permissions.isEmpty()) {
             requestPermissions(permissions.toArray(new String[0]), 0);
         }
@@ -289,6 +290,17 @@ public class MainActivity extends Activity {
             return;
         }
         super.onBackPressed();
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        WebView webView = mWebView1.getVisibility() == View.VISIBLE ? mWebView1 : mWebView2;
+        final WebView.HitTestResult webViewHitTestResult = webView.getHitTestResult();
+        if (webViewHitTestResult.getType() == WebView.HitTestResult.IMAGE_TYPE ||
+                webViewHitTestResult.getType() == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
+            Shared.setText(this,webViewHitTestResult.getExtra());
+        }
     }
 
     @Override

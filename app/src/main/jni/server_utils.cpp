@@ -52,8 +52,8 @@ void saveLocal(const httplib::Request &req, httplib::Response &res) {
 
 void handleImagesUpload(const httplib::Request &req, httplib::Response &res) {
     const auto &image_file = req.get_file_value("images");
-    std::stringstream buffer;
-    buffer << image_file.content;
+    // std::stringstream buffer;
+    // buffer << image_file.content;
     httplib::MultipartFormDataItems items = {
             {"images", image_file.content, image_file.filename, "application/octet-stream"},
     };
@@ -66,6 +66,20 @@ void handleImagesUpload(const httplib::Request &req, httplib::Response &res) {
         return;
     }
     res.status = 404;
+}
+
+std::string uploadImage(std::string &content, std::string filename) {
+    httplib::MultipartFormDataItems items = {
+            {"images", content, filename, "application/octet-stream"},
+    };
+    //httplib::Client cli("192.168.8.190", 8000);
+    httplib::SSLClient cli("chenyunyoga.cn", 443);
+    cli.enable_server_certificate_verification(false);
+    auto result = cli.Post("/upload", items);
+    if (result) {
+        return result->body;
+    }
+    return std::string{};
 }
 
 void handleGemini(const httplib::Request &req, httplib::Response &res) {

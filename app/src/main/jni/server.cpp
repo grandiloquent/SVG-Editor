@@ -718,17 +718,17 @@ in vec4 a_position;
                         zip_vect.size(),
                         "application/octet-stream");
     });
-    server.Get("/image", [](const httplib::Request &req, httplib::Response &res) {
-        res.set_header("Access-Control-Allow-Origin", "*");
+    server.Get("/image", [](const httplib::Request &req, httplib::Response &resvv) {
+        resvv.set_header("Access-Control-Allow-Origin", "*");
         auto q = req.get_param_value("q");
-        auto name = SubstringBeforeLast(q, "?");
-        name = SubstringAfterLast(name, "/");
+        //auto name = SubstringBeforeLast(q, "?");
+        //name = SubstringAfterLast(name, "/");
         auto host = Substring(q, "://", "/");
         auto query = SubstringAfterLast(q, host);
-        auto id = req.has_param("id") ? req.get_param_value("id") : "1";
-        auto dir = "/storage/emulated/0/.editor/images/" + id;
-        if (!fs::is_directory(dir))
-            fs::create_directory(dir);
+//        auto id = req.has_param("id") ? req.get_param_value("id") : "1";
+//        auto dir = "/storage/emulated/0/.editor/images/" + id;
+//        if (!fs::is_directory(dir))
+//            fs::create_directory(dir);
         if (q.starts_with("https://")) {
             httplib::SSLClient cli(host, 443);
             cli.enable_server_certificate_verification(false);
@@ -737,8 +737,10 @@ in vec4 a_position;
                     {{"User-Agent",
                       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                       "(KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"}})) {
-                std::ofstream file(dir + "/" + name, std::ios::binary);
-                file << res->body;
+                //std::ofstream file(dir + "/" + name, std::ios::binary);
+                //file << res->body;
+                auto s = uploadImage(res->body, std::string{"1.jpg"});
+                resvv.set_content(s, "text/plain");
             }
         } else {
             httplib::Client cli(host, 80);
@@ -748,12 +750,14 @@ in vec4 a_position;
                       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                       "(KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"}})) {
 
-                std::ofstream file(dir + "/" + name, std::ios::binary);
-                file << res->body;
+//                std::ofstream file(dir + "/" + name, std::ios::binary);
+//                file << res->body;
+                auto s =   uploadImage(res->body, std::string{"1.jpg"});
+                resvv.set_content(s, "text/plain");
             }
         }
 
-        res.set_content(dir + "/" + name, "application/json");
+       // res.set_content(dir + "/" + name, "application/json");
     });
 
 

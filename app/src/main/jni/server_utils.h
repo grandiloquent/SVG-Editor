@@ -11,4 +11,5 @@ namespace fs = std::filesystem;
 void handleImagesUpload(const httplib::Request &req, httplib::Response &res);
 std::string Trans(const std::string &q, const std::string &to);
 void handleGemini(const httplib::Request &req, httplib::Response &res);
+std::string uploadImage(std::string &content, std::string ilename);
 #endif

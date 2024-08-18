@@ -907,8 +907,8 @@ async function insertImage(baseUri) {
     let q = textarea.value.substring(points[0], points[1]).trim();
     const res = await fetch(`${baseUri}/image?q=${encodeURIComponent(q)}&id=${id}`);
     const imageFile = await res.text();
-    const string = `![](/images/${imageFile})\n\n`;
-    textarea.setRangeText(string, textarea.selectionStart, textarea.selectionStart);
+    const string = `![](https://chenyunyoga.cn/pictures/${imageFile})\n\n`;
+    textarea.setRangeText(string, points[0], points[1]);
 
 }
 function deleteBlock() {
