@@ -14,7 +14,7 @@ async function initializeToolbars() {
         }
     } catch (error) {
         topIndexs = [15, 16, 18, 22, 20, 21, 2]
-        bottomIndexs = [1, 23, 24, 25, 26, 27, 11]
+        bottomIndexs = [1, 23, 24, 25, 26, 27, 28]
     }
     insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
     insertItem(bottomIndexs, '.bar-renderer.bottom', 'bar-item-tab');
@@ -237,7 +237,14 @@ items.push([
         gemini(textarea)
     }
 ]);
-
+items.push([
+    28,
+    "content_cut",
+    "裁剪",
+    () => {
+       removeEnd();
+    }
+]);
 document.addEventListener('keydown', async evt => {
     if (evt.ctrlKey) {
         if (evt.key === 's') {

@@ -1030,3 +1030,10 @@ function formatCode(textarea) {
         textarea.setRangeText(`\`${s.trim()}\``, start, end);
     }
 }
+
+function removeEnd() {
+    const start = textarea.selectionStart;
+    const strings = textarea.value.substring(start);
+    writeText(strings);
+    textarea.setRangeText("", start, textarea.value.length);
+}
