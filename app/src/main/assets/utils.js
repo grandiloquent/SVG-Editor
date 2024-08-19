@@ -866,9 +866,13 @@ async function download(baseUri) {
 async function translateEnglish(textarea, language) {
     let points = findExtendPosition(textarea);
     let s = textarea.value.substring(points[0], points[1]).trim();
-    s = s.replaceAll(/\[[^a-z]+\]/g, '').replaceAll(/[\r\n]+/g, ' ')
+    language = 'zh'
+    if (/[\u3400-\u9FBF]/.test(s)) {
+        language = 'en'
+    }
+    s = language === 'zh' ? s.replaceAll(/\[[^a-z]+\]/g, '').replaceAll(/[\r\n]+/g, ' ')
         .replaceAll(/\s{2,}/g, ' ')
-        .replaceAll(/(?<=[a-zA-Z])- +/g, '');
+        .replaceAll(/(?<=[a-zA-Z])- +/g, '') : s;
     try {
         const response = await fetch(`${baseUri}/trans?to=${language ? language : "zh"}&q=${encodeURIComponent(s)}`);
         if (response.status > 399 || response.status < 200) {

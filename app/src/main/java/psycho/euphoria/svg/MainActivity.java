@@ -72,8 +72,12 @@ public class MainActivity extends Activity {
 
     private WebView mWebView1;
     private WebView mWebView2;
+    private WebView mWebView3;
+    private WebView mWebView4;
     CustomWebChromeClient mCustomWebChromeClient1;
     CustomWebChromeClient mCustomWebChromeClient2;
+    CustomWebChromeClient mCustomWebChromeClient3;
+    CustomWebChromeClient mCustomWebChromeClient4;
     private FrameLayout mFrameLayout;
 
     public static void aroundFileUriExposedException() {
@@ -183,6 +187,7 @@ public class MainActivity extends Activity {
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        settings.setUserAgentString("Mozilla/5.0 (Linux; Android 9; SM-G950N) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/88.0.4324.93 Mobile Safari/537.36");
         //settings.setUserAgentString(USER_AGENT);
         settings.setSupportZoom(false);
         webView.setDownloadListener(new DownloadListener() {
@@ -251,10 +256,20 @@ public class MainActivity extends Activity {
         mWebView2 = initializeWebView(this);
         mCustomWebChromeClient2 = new CustomWebChromeClient(this);
         mWebView2.setWebChromeClient(mCustomWebChromeClient2);
+        mWebView3 = initializeWebView(this);
+        mCustomWebChromeClient3 = new CustomWebChromeClient(this);
+        mWebView3.setWebChromeClient(mCustomWebChromeClient3);
+        mWebView4 = initializeWebView(this);
+        mCustomWebChromeClient4 = new CustomWebChromeClient(this);
+        mWebView4.setWebChromeClient(mCustomWebChromeClient2);
         mFrameLayout = new FrameLayout(this);
         mFrameLayout.addView(mWebView1);
         mWebView2.setVisibility(View.INVISIBLE);
         mFrameLayout.addView(mWebView2);
+        mWebView3.setVisibility(View.INVISIBLE);
+        mFrameLayout.addView(mWebView3);
+        mWebView4.setVisibility(View.INVISIBLE);
+        mFrameLayout.addView(mWebView4);
         setWebView(mWebView2);
         setContentView(mFrameLayout, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
@@ -299,19 +314,21 @@ public class MainActivity extends Activity {
         final WebView.HitTestResult webViewHitTestResult = webView.getHitTestResult();
         if (webViewHitTestResult.getType() == WebView.HitTestResult.IMAGE_TYPE ||
                 webViewHitTestResult.getType() == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
-            Shared.setText(this,webViewHitTestResult.getExtra());
+            Shared.setText(this, webViewHitTestResult.getExtra());
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(0, 1, 0, "刷新");
-        menu.add(0, 2, 0, "首页");
+        menu.add(0, 2, 0, "首页").setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         menu.add(0, 3, 0, "复制");
-        MenuItem menuItem = menu.add(0, 4, 0, "切换");
+        MenuItem menuItem = menu.add(0, 4, 0, "阅读");
         menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         MenuItem menuItem1 = menu.add(0, 8, 0, "搜索");
         menuItem1.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        MenuItem menuItem2 = menu.add(0, 9, 0, "智能");
+        menuItem2.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         menu.add(0, 5, 0, "打开");
         menu.add(0, 6, 0, "收藏");
         menu.add(0, 7, 0, "历史");
@@ -326,27 +343,23 @@ public class MainActivity extends Activity {
                 webView.reload();
                 break;
             case 2:
-                webView.loadUrl(getAddress(this));
+                mWebView2.setVisibility(View.INVISIBLE);
+                mWebView3.setVisibility(View.INVISIBLE);
+                mWebView4.setVisibility(View.INVISIBLE);
+                mWebView1.setVisibility(View.VISIBLE);
+                if (mWebView1.getUrl() == null || !mWebView1.getUrl().startsWith("http://0.0.0.0:8090"))
+                    mWebView1.loadUrl("http://0.0.0.0:8090");
                 break;
             case 3:
                 Shared.setText(this, webView.getUrl());
                 break;
             case 4:
-//                PDFBoxResourceLoader.init(getApplicationContext());
-//                int start = 78;
-//                try {
-//                    start = Integer.parseInt(Shared.getText(this).toString());
-//                } catch (Exception ignored) {
-//                }
-//                getAllImageFromFile("/storage/emulated/0/.editor/pdf/1.pdf", start, start + 1, "/storage/emulated/0/.editor/pdf");
-//
-                if (mWebView1.getVisibility() == View.VISIBLE) {
-                    mWebView1.setVisibility(View.INVISIBLE);
-                    mWebView2.setVisibility(View.VISIBLE);
-                } else {
-                    mWebView2.setVisibility(View.INVISIBLE);
-                    mWebView1.setVisibility(View.VISIBLE);
-                }
+                mWebView1.setVisibility(View.INVISIBLE);
+                mWebView3.setVisibility(View.INVISIBLE);
+                mWebView4.setVisibility(View.INVISIBLE);
+                mWebView2.setVisibility(View.VISIBLE);
+                if (mWebView2.getUrl() == null || !mWebView2.getUrl().startsWith("http://0.0.0.0:8500"))
+                    mWebView2.loadUrl("http://0.0.0.0:8500/app.html");
                 break;
             case 5:
                 webView.loadUrl("http://0.0.0.0:8500/app.html");
@@ -362,8 +375,20 @@ public class MainActivity extends Activity {
                 ;
                 break;
             case 8:
-                webView.loadUrl("https://www.google.com/search?q=" + Uri.encode(Shared.getText(this).toString()));
-                ;
+                mWebView1.setVisibility(View.INVISIBLE);
+                mWebView2.setVisibility(View.INVISIBLE);
+                mWebView4.setVisibility(View.INVISIBLE);
+                mWebView3.setVisibility(View.VISIBLE);
+                if (mWebView3.getUrl() == null || !mWebView3.getUrl().startsWith("https://www.google.com"))
+                    mWebView3.loadUrl("https://www.google.com/search?q=");
+                break;
+            case 9:
+                mWebView1.setVisibility(View.INVISIBLE);
+                mWebView2.setVisibility(View.INVISIBLE);
+                mWebView3.setVisibility(View.INVISIBLE);
+                mWebView4.setVisibility(View.VISIBLE);
+                if (mWebView4.getUrl() == null || !mWebView4.getUrl().startsWith("https://gemini.google.com"))
+                    mWebView4.loadUrl("https://gemini.google.com/");
                 break;
         }
         return super.onOptionsItemSelected(item);
