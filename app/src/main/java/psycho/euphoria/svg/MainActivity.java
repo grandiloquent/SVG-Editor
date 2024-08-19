@@ -261,7 +261,7 @@ public class MainActivity extends Activity {
         mWebView3.setWebChromeClient(mCustomWebChromeClient3);
         mWebView4 = initializeWebView(this);
         mCustomWebChromeClient4 = new CustomWebChromeClient(this);
-        mWebView4.setWebChromeClient(mCustomWebChromeClient2);
+        mWebView4.setWebChromeClient(mCustomWebChromeClient4);
         mFrameLayout = new FrameLayout(this);
         mFrameLayout.addView(mWebView1);
         mWebView2.setVisibility(View.INVISIBLE);
@@ -271,6 +271,8 @@ public class MainActivity extends Activity {
         mWebView4.setVisibility(View.INVISIBLE);
         mFrameLayout.addView(mWebView4);
         setWebView(mWebView2);
+        setWebView(mWebView3);
+        setWebView(mWebView4);
         setContentView(mFrameLayout, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
@@ -299,7 +301,14 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        WebView webView = mWebView1.getVisibility() == View.VISIBLE ? mWebView1 : mWebView2;
+        WebView webView = mWebView1;
+        if (mWebView2.getVisibility() == View.VISIBLE) {
+            webView = mWebView2;
+        } else if (mWebView3.getVisibility() == View.VISIBLE) {
+            webView = mWebView3;
+        } else if (mWebView4.getVisibility() == View.VISIBLE) {
+            webView = mWebView4;
+        }
         if (webView != null && webView.canGoBack()) {
             webView.goBack();
             return;
@@ -310,7 +319,14 @@ public class MainActivity extends Activity {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        WebView webView = mWebView1.getVisibility() == View.VISIBLE ? mWebView1 : mWebView2;
+        WebView webView = mWebView1;
+        if (mWebView2.getVisibility() == View.VISIBLE) {
+            webView = mWebView2;
+        } else if (mWebView3.getVisibility() == View.VISIBLE) {
+            webView = mWebView3;
+        } else if (mWebView4.getVisibility() == View.VISIBLE) {
+            webView = mWebView4;
+        }
         final WebView.HitTestResult webViewHitTestResult = webView.getHitTestResult();
         if (webViewHitTestResult.getType() == WebView.HitTestResult.IMAGE_TYPE ||
                 webViewHitTestResult.getType() == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
@@ -337,7 +353,14 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        WebView webView = mWebView1.getVisibility() == View.VISIBLE ? mWebView1 : mWebView2;
+        WebView webView = mWebView1;
+        if (mWebView2.getVisibility() == View.VISIBLE) {
+            webView = mWebView2;
+        } else if (mWebView3.getVisibility() == View.VISIBLE) {
+            webView = mWebView3;
+        } else if (mWebView4.getVisibility() == View.VISIBLE) {
+            webView = mWebView4;
+        }
         switch (item.getItemId()) {
             case 1:
                 webView.reload();
@@ -388,7 +411,7 @@ public class MainActivity extends Activity {
                 mWebView3.setVisibility(View.INVISIBLE);
                 mWebView4.setVisibility(View.VISIBLE);
                 if (mWebView4.getUrl() == null || !mWebView4.getUrl().startsWith("https://gemini.google.com"))
-                    mWebView4.loadUrl("https://gemini.google.com/");
+                    mWebView4.loadUrl("https://gemini.google.com");
                 break;
         }
         return super.onOptionsItemSelected(item);
