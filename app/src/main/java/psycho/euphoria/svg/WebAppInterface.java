@@ -15,6 +15,8 @@ import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.JavascriptInterface;
@@ -39,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
@@ -47,6 +50,7 @@ public class WebAppInterface {
 
     private MainActivity mContext;
     SharedPreferences mSharedPreferences;
+    TextToSpeech textToSpeech = null;
 
     public WebAppInterface(MainActivity context) {
         mContext = context;
@@ -63,7 +67,6 @@ public class WebAppInterface {
 
 
     }
-
 
     @JavascriptInterface
     public void downloadFile(String fileName, String uri) {
@@ -86,6 +89,29 @@ public class WebAppInterface {
     @JavascriptInterface
     public String getString(String key) {
         return mSharedPreferences.getString(key, "");
+    }
+
+    @JavascriptInterface
+    public String getTitle(String uri) {
+        final StringBuilder sb = new StringBuilder();
+        try {
+            Thread thread = new Thread(() -> {
+                try {
+                    HttpURLConnection h = (HttpURLConnection) new URL(uri).openConnection();
+                    h.addRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36 Edg/88.0.705.74");
+                    String s = Shared.readString(h);
+                    s = Shared.substringAfter(s, "<title>");
+                    s = Shared.substringBefore(s, "</title>");
+                    sb.append(s);
+                } catch (Exception e) {
+                }
+            });
+            thread.start();
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
     }
 
     @JavascriptInterface
@@ -197,6 +223,25 @@ public class WebAppInterface {
     }
 
     @JavascriptInterface
+    public void speak(String s) {
+
+        textToSpeech = new TextToSpeech(mContext, new OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                Log.e("B5aOx2", String.format("onInit, %s", status));
+                textToSpeech.setLanguage(Locale.CHINA);
+                Log.e("B5aOx2", String.format("onInit, %s", textToSpeech.setLanguage(Locale.CHINA)));
+                mContext.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        textToSpeech.speak(s, TextToSpeech.QUEUE_FLUSH, null);
+                    }
+                });
+            }
+        });
+    }
+
+    @JavascriptInterface
     public void switchInputMethod() {
         ((InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE)).showInputMethodPicker();
     }
@@ -240,36 +285,10 @@ public class WebAppInterface {
         clipboard.setPrimaryClip(clip);
     }
 
-
     private static void openLocalPage(Context context, String path) {
         PackageManager pm = context.getPackageManager();
         Intent launchIntent = pm.getLaunchIntentForPackage("com.android.chrome");
         launchIntent.setData(Uri.parse("http://" + Shared.getDeviceIP(context) + ":8500" + path));
         context.startActivity(launchIntent);
     }
-
-
-    @JavascriptInterface
-    public String getTitle(String uri) {
-        final StringBuilder sb = new StringBuilder();
-        try {
-            Thread thread = new Thread(() -> {
-                try {
-                    HttpURLConnection h = (HttpURLConnection) new URL(uri).openConnection();
-                    h.addRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36 Edg/88.0.705.74");
-                    String s = Shared.readString(h);
-                    s = Shared.substringAfter(s, "<title>");
-                    s = Shared.substringBefore(s, "</title>");
-                    sb.append(s);
-                } catch (Exception e) {
-                }
-            });
-            thread.start();
-            thread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return sb.toString();
-    }
-
 }

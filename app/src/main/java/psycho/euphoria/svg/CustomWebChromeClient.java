@@ -26,7 +26,7 @@ public class CustomWebChromeClient extends WebChromeClient {
 
     @Override
     public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-        Log.e("B5aOx2", String.format("onConsoleMessage, %s\n%s", consoleMessage.message(), consoleMessage.lineNumber()));
+        Log.e("B5aOx2", String.format("onConsoleMessage, %s\n%s\n%s", consoleMessage.message(), consoleMessage.lineNumber(),consoleMessage.sourceId()));
         return super.onConsoleMessage(consoleMessage);
     }
 

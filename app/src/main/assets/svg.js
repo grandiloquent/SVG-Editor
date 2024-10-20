@@ -19,6 +19,14 @@ async function initializeToolbars() {
     insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
     insertItem(bottomIndexs, '.bar-renderer.bottom', 'bar-item-tab');
 }
+const synth = window.speechSynthesis;
+
+const speak = (msg) => {
+  let u = new SpeechSynthesisUtterance();
+  u.lang = 'zh-TW';
+  u.text = msg;
+  synth.speak(u);
+};
 ///////////////////////////////////////////////////
 const items = [
     [
@@ -27,11 +35,11 @@ const items = [
         "预览",
         async () => {
             await saveData();
-            if (typeof NativeAndroid !== 'undefined') {
-                NativeAndroid.launchApp("psycho.euphoria.l", `/svgviewer?id=${id}`);
-            } else {
-                window.open(`${baseUri}/svgviewer?id=${id}`, '_blank');
-            }
+            // if (typeof NativeAndroid !== 'undefined') {
+            //     NativeAndroid.launchApp("psycho.euphoria.l", `/svgviewer?id=${id}`);
+            // } else {
+            //     window.open(`${baseUri}/svgviewer?id=${id}`, '_blank');
+            // }
         }
     ], [
         2,
@@ -137,7 +145,9 @@ const items = [
         "preview",
         "保存",
         async () => {
-            await saveData();
+            //await saveData();
+            let line = getLine(textarea);
+            NativeAndroid.speak(textarea.value.substring(line[0], line[1]));
         }
     ], [
         16,
@@ -242,7 +252,7 @@ items.push([
     "content_cut",
     "裁剪",
     () => {
-       removeEnd();
+        removeEnd();
     }
 ]);
 document.addEventListener('keydown', async evt => {
@@ -271,7 +281,7 @@ document.addEventListener('keydown', async evt => {
             //     window.open(`${baseUri}/svgviewer?id=${id}`, '_blank');
             // }
             formatHead(textarea)
-            
+
         } else if (evt.key === 'F5') {
             evt.preventDefault();
             formatCode()

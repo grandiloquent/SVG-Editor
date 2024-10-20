@@ -402,7 +402,7 @@ public class MainActivity extends Activity {
                 mWebView2.setVisibility(View.INVISIBLE);
                 mWebView4.setVisibility(View.INVISIBLE);
                 mWebView3.setVisibility(View.VISIBLE);
-                if (mWebView3.getUrl() == null || !mWebView3.getUrl().startsWith("https://www.google.com"))
+                if (mWebView3.getUrl() == null )
                     mWebView3.loadUrl("https://www.google.com/search?q=");
                 break;
             case 9:
