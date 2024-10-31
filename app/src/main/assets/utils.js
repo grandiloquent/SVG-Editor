@@ -1041,3 +1041,54 @@ function removeEnd() {
     writeText(strings);
     textarea.setRangeText("", start, textarea.value.length);
 }
+
+function showSnippets() {
+    const dialog = document.createElement('custom-dialog');
+    const div = document.createElement('div');
+    div.style = `display: grid;grid-template-columns: 36px 1fr;align-items: center;overflow-x: hidden;`
+    const content = localStorage.getItem('snippet');
+    const snippets = (content && JSON.parse(content)) || ["123"];
+    snippets.forEach((snippet) => {
+        const span = document.createElement('span');
+        span.className = 'material-symbols-outlined';
+        span.textContent = 'close';
+        span.dataset.value = snippet;
+        div.appendChild(span);
+        const child = document.createElement('div');
+        child.textContent = snippet;
+        div.appendChild(child);
+        span.addEventListener('click', () => {
+            const values = [];
+            snippets.forEach((s) => {
+                if (s !== snippet) {
+                    values.push(s)
+                }
+            });
+            localStorage.setItem('snippet', JSON.stringify(values));
+            dialog.remove();
+        });
+        child.addEventListener('click', () => {
+            textarea.setRangeText(snippet, textarea.selectionStart, textarea.selectionEnd);
+            dialog.remove();
+        });
+    });
+
+
+    dialog.appendChild(div);
+
+    dialog.addEventListener('submit', async () => {
+        const v = await readText();
+        const values = [];
+        snippets.forEach((s) => {
+            if (s !== v) {
+                values.push(s)
+            }
+        });
+        values.push(v);
+        localStorage.setItem('snippet', JSON.stringify(values));
+        dialog.remove();
+    });
+    document.body.appendChild(dialog);
+
+
+}

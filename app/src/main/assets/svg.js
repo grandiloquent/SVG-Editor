@@ -14,7 +14,7 @@ async function initializeToolbars() {
         }
     } catch (error) {
         topIndexs = [15, 16, 18, 22, 20, 21, 2]
-        bottomIndexs = [1, 23, 24, 25, 26, 27, 28]
+        bottomIndexs = [1, 23, 24, 25, 26, 27, 28,29]
     }
     insertItem(topIndexs, '.bar-renderer.top', 'bar-item-tab');
     insertItem(bottomIndexs, '.bar-renderer.bottom', 'bar-item-tab');
@@ -145,9 +145,9 @@ const items = [
         "preview",
         "保存",
         async () => {
-            //await saveData();
-            let line = getLine(textarea);
-            NativeAndroid.speak(textarea.value.substring(line[0], line[1]));
+            await saveData();
+            //let line = getLine(textarea);
+            //NativeAndroid.speak(textarea.value.substring(line[0], line[1]));
         }
     ], [
         16,
@@ -159,6 +159,14 @@ const items = [
     ],
 ];
 
+items.push([
+    29,
+    "text_snippet",
+    "代码段",
+     () => {
+        showSnippets();
+    }
+]);
 items.push([
     17,
     "download",
