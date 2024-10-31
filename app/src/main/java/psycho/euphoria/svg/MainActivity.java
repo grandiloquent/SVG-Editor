@@ -348,6 +348,7 @@ public class MainActivity extends Activity {
         menu.add(0, 5, 0, "打开");
         menu.add(0, 6, 0, "收藏");
         menu.add(0, 7, 0, "历史");
+        menu.add(0, 10, 0, "脚本");
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -402,7 +403,7 @@ public class MainActivity extends Activity {
                 mWebView2.setVisibility(View.INVISIBLE);
                 mWebView4.setVisibility(View.INVISIBLE);
                 mWebView3.setVisibility(View.VISIBLE);
-                if (mWebView3.getUrl() == null )
+                if (mWebView3.getUrl() == null)
                     mWebView3.loadUrl("https://www.google.com/search?q=");
                 break;
             case 9:
@@ -412,6 +413,23 @@ public class MainActivity extends Activity {
                 mWebView4.setVisibility(View.VISIBLE);
                 if (mWebView4.getUrl() == null || !mWebView4.getUrl().startsWith("https://gemini.google.com"))
                     mWebView4.loadUrl("https://gemini.google.com");
+                break;
+            case 10:
+                webView.evaluateJavascript("function writeText(message) {\n" +
+                        "    const textarea = document.createElement(\"textarea\");\n" +
+                        "    textarea.style.position = 'fixed';\n" +
+                        "    textarea.style.right = '100%';\n" +
+                        "    document.body.appendChild(textarea);\n" +
+                        "    textarea.value = message;\n" +
+                        "    textarea.select();\n" +
+                        "    document.execCommand('copy');\n" +
+                        "    textarea.remove();\n" +
+                        "}\n" +
+                        "[...document.querySelectorAll('p')].forEach(p => {\n" +
+                        "    p.addEventListener('click', evt => {\n" +
+                        "        writeText(evt.target.textContent);\n" +
+                        "    })\n" +
+                        "})", null);
                 break;
         }
         return super.onOptionsItemSelected(item);

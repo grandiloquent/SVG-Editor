@@ -362,6 +362,12 @@ function writeText(message) {
     document.execCommand('copy');
     textarea.remove();
 }
+[...document.querySelectorAll('p')].forEach(p => {
+    p.addEventListener('click', evt => {
+        writeText(evt.target.textContent);
+    })
+})
+
 
 async function readText() {
     // const textarea = document.createElement("textarea");
