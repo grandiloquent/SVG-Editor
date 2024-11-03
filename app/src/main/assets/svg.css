@@ -11,6 +11,7 @@ body {
     font-size: 1.2rem;
     overflow-x: hidden;
     height: 100%;
+    background-color: #000;
 }
 
 a {
@@ -142,10 +143,10 @@ input:focus {
     padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     z-index: 3;
     height: 48px;
-    border-top: 1px solid rgba(0, 0, 0, .1);
-    color: #0f0f0f;
+    /* border-top: 1px solid rgba(0, 0, 0, .1); */
+    color: #999;
     font-size: 1.1rem;
-    background: #fff;
+    background: #000;
     user-select: none;
 }
 
@@ -176,7 +177,7 @@ input:focus {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: #0f0f0f;
+    color: #999;
 }
 
 .media-items {
@@ -523,6 +524,8 @@ input:focus {
     flex-grow: 1;
     border: none;
     font-size: 18px;
+    background-color: #000;
+    color: #999;
 }
 .note-items {
     margin: 49px 0;
@@ -532,6 +535,7 @@ input:focus {
     border-radius: 0;
     padding: 0 16px;
     font-size: 12px;
+    
 }
 
 .note-items>a {
